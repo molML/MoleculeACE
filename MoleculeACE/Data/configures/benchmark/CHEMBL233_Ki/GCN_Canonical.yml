@@ -1,0 +1,17 @@
+atom_featurizer_type: Canonical
+batch_size: 128
+batchnorm: true
+bond_featurizer_type: Canonical
+dropout: 0.5499702214040842
+epochs: 100
+gnn_hidden_feats: 128
+in_node_feats: 74
+lr: 0.009719306566644407
+model: GCN
+n_tasks: 1
+num_gnn_layers: 5
+patience: 30
+predictor_hidden_feats: 128
+residual: false
+val_split: 0.1
+weight_decay: 0.0015312262147113495

@@ -1,0 +1,17 @@
+atom_featurizer_type: Canonical
+batch_size: 32
+bond_featurizer_type: Canonical
+edge_hidden_feats: 32
+epochs: 2
+in_edge_feats: 13
+in_node_feats: 74
+lr: 0.049836190403981184
+model: MPNN
+n_tasks: 1
+node_out_feats: 32
+num_layer_set2set: 2
+num_step_message_passing: 3
+num_step_set2set: 1
+patience: 30
+val_split: 0.1
+weight_decay: 0.0015143635836155393

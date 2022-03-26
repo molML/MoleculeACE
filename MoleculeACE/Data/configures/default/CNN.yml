@@ -1,0 +1,24 @@
+#Hyperparameters for the 1D CNN
+
+# N epochs with early stopping
+epochs: 1000
+early_stopping_patience: 30
+# Validation split
+val_split: 0.1
+
+# Augment smiles n times
+augmentation: 10
+# dropout factor
+dropout: 0.5
+#  batch size
+batch_size: 32
+# starting learning rate
+lr: 0.0001
+# decrease the learning rate by this factor after 'patience_lr' epochs of no improvement
+lr_factor: 0.5
+# minimal learning rate
+min_lr: 1.0e-05
+# what metric to monitor while training
+monitor: val_loss
+# change the learning rate after n epochs
+patience_lr: 5

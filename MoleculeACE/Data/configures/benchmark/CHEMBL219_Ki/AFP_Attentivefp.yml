@@ -1,0 +1,16 @@
+atom_featurizer_type: Attentivefp
+batch_size: 64
+bond_featurizer_type: Attentivefp
+dropout: 0.0070994662145199335
+epochs: 100
+graph_feat_size: 64
+in_edge_feats: 11
+in_node_feats: 39
+lr: 0.007286060587629389
+model: AFP
+n_tasks: 1
+num_layers: 4
+num_timesteps: 3
+patience: 30
+val_split: 0.1
+weight_decay: 1.3116471008786102e-06

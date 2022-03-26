@@ -1,0 +1,22 @@
+# Hyperparameters for support vector Regression. If you provide parameters as a list,
+# they will get optimized by grid-searched using 5-fold cross-validation
+
+# Regularization parameter. Must be strictly positive. L2 penalty.
+C:
+- 1
+- 10
+- 100
+- 1000
+- 10000
+# Epsilon in the epsilon-SVR model
+epsilon: 0.1
+# Kernel coefficient
+gamma:
+- 1.0e-06
+- 1.0e-05
+- 0.0001
+- 0.001
+- 0.01
+- 0.1
+# kernel type to be used. ‘linear’, ‘poly’, ‘rbf’, ‘sigmoid’
+kernel: rbf

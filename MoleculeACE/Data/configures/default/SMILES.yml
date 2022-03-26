@@ -1,0 +1,88 @@
+# SMILES one-hot-encoding Settings
+
+# end of sequence token
+end_char: E
+# padding token
+pad_char: A
+# start of sequence token
+start_char: G
+# The index for every token
+indices_token:
+    0: c
+    1: C
+    2: (
+    3: )
+    4: O
+    5: '1'
+    6: '2'
+    7: '='
+    8: N
+    9: '@'
+    10: '['
+    11: ']'
+    12: n
+    13: '3'
+    14: H
+    15: F
+    16: '4'
+    17: '-'
+    18: S
+    19: Cl
+    20: /
+    21: s
+    22: o
+    23: '5'
+    24: +
+    25: '#'
+    26: \
+    27: Br
+    28: P
+    29: '6'
+    30: I
+    31: '7'
+    32: G
+    33: E
+    34: A
+# The token for every index
+token_indices:
+    '#': 25
+    (: 2
+    ): 3
+    +: 24
+    '-': 17
+    /: 20
+    '1': 5
+    '2': 6
+    '3': 13
+    '4': 16
+    '5': 23
+    '6': 29
+    '7': 31
+    '=': 7
+    '@': 9
+    A: 34
+    Br: 27
+    C: 1
+    Cl: 19
+    E: 33
+    F: 15
+    G: 32
+    H: 14
+    I: 30
+    N: 8
+    O: 4
+    P: 28
+    S: 18
+    '[': 10
+    \: 26
+    ']': 11
+    c: 0
+    n: 12
+    o: 22
+    s: 21
+# nr of different encoding tokens
+vocab_size: 35
+# max nr of SMILES tokens allowed in a SMILES string
+max_smiles_len: 200
+# min nr of SMILES tokens allowed in a SMILES string
+min_smiles_len: 5

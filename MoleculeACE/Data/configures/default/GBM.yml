@@ -1,0 +1,24 @@
+# Hyperparameters for gradient boosting machine regression. If you provide parameters as a list,
+# they will get optimized by grid-searched using 5-fold cross-validation
+
+# Learning rate shrinks the contribution of each tree
+learning_rate: 0.1
+# Maximum depth of the individual regression estimators
+max_depth:
+- 5
+- 6
+- 7
+# number of features to consider when looking for the best split. sqrt(n_features)
+max_features: sqrt
+# Grow trees with max_leaf_nodes in best-first fashion
+max_leaf_nodes: null
+# minimum number of samples required to be at a leaf node
+min_samples_leaf: 1
+# The minimum number of samples required to split an internal node
+min_samples_split: 2
+# The number of boosting stages to perform
+n_estimators:
+- 100
+- 200
+- 400
+

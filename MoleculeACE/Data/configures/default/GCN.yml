@@ -1,0 +1,48 @@
+# Standard hyperparameters for Graph Convolutional Networks
+epochs: 100
+early_stopping_patience: 30
+# learning rate uniformly distributed between .. and ..
+lr_min: 0.0001
+lr_max: 0.3
+# Weight decay uniformly distributed between .. and ..
+weight_decay_min: 0
+weight_decay_max: 0.003
+# Validation split
+val_split: 0.1
+# batch size
+batch_size:
+  - 32
+  - 64
+  - 128
+# Gnn features
+gnn_hidden_feats:
+  - 32
+  - 64
+  - 128
+  - 256
+# Hidden features
+predictor_hidden_feats:
+  - 16
+  - 32
+  - 64
+  - 128
+  - 256
+  - 512
+  - 1024
+# Number of layers
+num_gnn_layers:
+  - 1
+  - 2
+  - 3
+  - 4
+  - 5
+residual:
+  - true
+  - false
+batchnorm:
+  - true
+  - false
+# Dropout uniformly distributed between 0 and 0.6
+dropout:
+  - 0
+  - 0.6

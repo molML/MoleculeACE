@@ -1,0 +1,13 @@
+# This file contains some general settings that are used across the board.
+
+# Number of cores used for handling the dataloaders
+num_workers: 4
+
+# Number of folds for cross-validation (used for all models that are optimized)
+num_cv_folds: 5
+
+# Optimization metric
+metric: rmse
+
+# Number of iteration of bayesian hyperparameter optimization for all graph neural networks
+bayesian_optimization_tries: 15

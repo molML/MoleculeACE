@@ -1,0 +1,15 @@
+# Hyperparameters for k-nearest neigbour Regression. If you provide parameters as a list,
+# they will get optimized by grid-searched using 5-fold cross-validation
+
+# The distance metric to use
+metric: euclidean
+# Number of neighbors to use by default for kneighbors queries.
+n_neighbors:
+- 3
+- 5
+- 11
+- 21
+# Weight function used in prediction
+weights:
+- uniform
+- distance

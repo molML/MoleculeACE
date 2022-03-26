@@ -1,0 +1,3 @@
+metric: euclidean
+n_neighbors: 21
+weights: distance
