@@ -39,6 +39,7 @@ class Algorithms(Enum):
     GIN_INFOMAX = 'gin_supervised_infomax'
     GIN_EDGEPRED = 'gin_supervised_edgepred'
     GIN_MASKING = 'gin_supervised_masking'
+    TRANSFORMER = 'TRANS'
 
 
 class Descriptors(Enum):
@@ -59,6 +60,7 @@ class Descriptors(Enum):
     SMARTS = "smarts"
     DRUG_LIKE = 'Drug_like'
     LSTM = 'LSTM'
+    TOKENS = 'Tokens'
 
 
 package_path = get_project_root()
@@ -91,6 +93,7 @@ CONFIG_PATH_GNN = os.path.join(CONFIG_PATH, 'default', 'GNN.yml')
 CONFIG_PATH_AFP = os.path.join(CONFIG_PATH, 'default', 'AFP.yml')
 CONFIG_PATH_GAT = os.path.join(CONFIG_PATH, 'default', 'GAT.yml')
 CONFIG_PATH_MPNN = os.path.join(CONFIG_PATH, 'default', 'MPNN.yml')
+CONFIG_PATH_TRANS = os.path.join(CONFIG_PATH, 'default', 'TRANS.yml')
 
 
 datasets = ['CHEMBL4203_Ki', 'CHEMBL2034_Ki', 'CHEMBL233_Ki', 'CHEMBL4616_EC50', 'CHEMBL287_Ki', 'CHEMBL218_EC50',
