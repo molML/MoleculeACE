@@ -24,7 +24,7 @@ from rdkit.Chem import rdPartialCharges
 from typing import List
 import numpy as np
 import torch
-import re
+from MoleculeACE.benchmark.utils import smi_tokenizer
 from tqdm import tqdm
 import pickle
 
@@ -182,7 +182,7 @@ class OneHotEncodeSMILES:
         this will turn a list of smiles in string format
         and turn them into a np array of int, with padding
         """
-        token_list = self.smi_tokenizer(smi)
+        token_list = smi_tokenizer(smi)
 
         if truncate:
             token_list = token_list[:(self.max_len_model-2)]
@@ -193,16 +193,6 @@ class OneHotEncodeSMILES:
         int_list = [self.token_indices[x] for x in token_list]
 
         return np.asarray(int_list)
-
-    def smi_tokenizer(self, smi: str):
-        """
-        Tokenize a SMILES
-        """
-        pattern = "(\[|\]|Xe|Ba|Rb|Ra|Sr|Dy|Li|Kr|Bi|Mn|He|Am|Pu|Cm|Pm|Ne|Th|Ni|Pr|Fe|Lu|Pa|Fm|Tm|Tb|Er|Be|Al|Gd|Eu|te|As|Pt|Lr|Sm|Ca|La|Ti|Te|Ac|Si|Cf|Rf|Na|Cu|Au|Nd|Ag|Se|se|Zn|Mg|Br|Cl|U|V|K|C|B|H|N|O|S|P|F|I|b|c|n|o|s|p|\(|\)|\.|=|#|-|\+|\\\\|\/|:|~|@|\?|>|\*|\$|\%\d{2}|\d)"
-        regex = re.compile(pattern)
-        tokens = [token for token in regex.findall(smi)]
-
-        return tokens
 
     def __call__(self, smiles, truncate: bool = True):
 

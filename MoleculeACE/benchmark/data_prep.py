@@ -11,12 +11,9 @@ from MoleculeACE.benchmark.cliffs import ActivityCliffs, get_tanimoto_matrix
 from MoleculeACE.benchmark.const import RANDOM_SEED
 from sklearn.cluster import SpectralClustering
 from sklearn.model_selection import train_test_split
-from rdkit import Chem
 from typing import List
 import pandas as pd
 import numpy as np
-import random
-from tqdm import tqdm
 
 
 def split_data(smiles: List[str], bioactivity: List[float], in_log10: bool = False, n_clusters: int = 5,
@@ -104,46 +101,4 @@ def find_stereochemical_siblings(smiles: List[str]):
     identical_pairs = [[smiles[identical[0][i]], smiles[identical[1][i]]] for i, j in enumerate(identical[0])]
 
     return list(set(sum(identical_pairs, [])))
-
-
-def augment(smiles, *args, augment_factor=10, max_smiles_len=200):
-    """ Augment SMILES strings by adding non-canonical SMILES. Keeps corresponding activity values/CHEMBL IDs """
-    augmented_smiles = []
-    augmented_args = [[] for _ in args]
-    for i, smi in enumerate(tqdm(smiles)):
-        generated = smile_augmentation(smi, augment_factor - 1, max_smiles_len)
-        augmented_smiles.append(smi)
-        augmented_smiles.extend(generated)
-
-        for a, arg in enumerate(args):
-            for _ in range(len(generated)+1):
-                augmented_args[a].append(arg[i])
-
-    return tuple([augmented_smiles],) + tuple(augmented_args)
-
-
-def random_smiles(mol):
-    """ Generate a random non-canonical SMILES string from a molecule"""
-    # https://github.com/michael1788/virtual_libraries/blob/master/experiments/do_data_processing.py
-    mol.SetProp("_canonicalRankingNumbers", "True")
-    idxs = list(range(0, mol.GetNumAtoms()))
-    random.shuffle(idxs)
-    for i, v in enumerate(idxs):
-        mol.GetAtomWithIdx(i).SetProp("_canonicalRankingNumber", str(v))
-    return Chem.MolToSmiles(mol)
-
-
-def smile_augmentation(smile, augmentation, max_len):
-    """Generate n random non-canonical SMILES strings from a SMILES string with length constraints"""
-    # https://github.com/michael1788/virtual_libraries/blob/master/experiments/do_data_processing.py
-    mol = Chem.MolFromSmiles(smile)
-    s = set()
-    for i in range(1000):
-        smiles = random_smiles(mol)
-        if len(smiles) <= max_len:
-            s.add(smiles)
-            if len(s) == augmentation:
-                break
-
-    return list(s)
 
