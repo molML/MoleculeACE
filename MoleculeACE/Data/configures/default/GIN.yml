@@ -1,19 +1,5 @@
 # Standard hyperparameters for GIN_Pretrained
-epochs: 1000
-early_stopping_patience: 30
-# learning rate uniformly distributed between .. and ..
-lr_min: 0.0001
-lr_max: 0.3
-# Weight decay uniformly distributed between .. and ..
-weight_decay_min: 0
-weight_decay_max: 0.003
-# Validation split
-val_split: 0.1
-# batch size
-batch_size:
-  - 32
-  - 64
-  - 128
+epochs: 200
 # jumping knowledge
 jk:
   - concat
@@ -26,3 +12,8 @@ readout:
   - mean
   - max
   - attention
+lr:
+  - 0.005
+  - 0.0005
+  - 0.00005
+  - 0.000005

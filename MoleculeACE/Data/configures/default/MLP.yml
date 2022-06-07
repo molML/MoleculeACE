@@ -1,21 +1,20 @@
-# N epochs with early stopping of the vanilla deep neural network
-epochs: 1000
-early_stopping_patience: 30
-# Validation split
-val_split: 0.1
-
-batch_size: 64
 dropout:
   - 0
-  - 0.25
-  - 0.5
-hidden_size:
+  - 0.1
+  - 0.2
+hidden:
   - 256
   - 512
-lr: 0.0001
-lr_factor: 0.5
-min_lr: 1.0e-05
-monitor: val_loss
-patience_lr: 10
-regularization: 0.01
-
+  - 1024
+lr:
+  - 0.005
+  - 0.0005
+  - 0.00005
+  - 0.000005
+n_layers:
+  - 1
+  - 2
+  - 3
+  - 4
+  - 5
+epochs: 500

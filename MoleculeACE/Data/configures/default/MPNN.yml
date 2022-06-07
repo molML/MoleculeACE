@@ -1,36 +1,40 @@
 # Standard hyperparameters for Message Passing Neural Network
-epochs: 100
-early_stopping_patience: 30
-# learning rate uniformly distributed between .. and ..
-lr_min: 0.0001
-lr_max: 0.3
-# Weight decay uniformly distributed between .. and ..
-weight_decay_min: 0
-weight_decay_max: 0.003
-# Validation split
-val_split: 0.1
-# batch size
-batch_size:
+epochs: 300
+node_hidden:
   - 32
   - 64
   - 128
-node_out_feats:
+  - 256
+edge_hidden:
   - 32
   - 64
-edge_hidden_feats:
-  - 32
-  - 64
-num_step_message_passing:
+  - 128
+  - 256
+message_steps:
   - 1
   - 2
   - 3
   - 4
   - 5
-num_step_set2set:
+dropout:
+  - 0
+  - 0.1
+  - 0.2
+transformer_hidden:
+  - 64
+  - 128
+  - 256
+  - 512
+fc_hidden:
+  - 128
+  - 256
+  - 512
+n_fc_layers:
   - 1
   - 2
   - 3
-num_layer_set2set:
-  - 1
-  - 2
-  - 3
+lr:
+  - 0.005
+  - 0.0005
+  - 0.00005
+  - 0.000005
