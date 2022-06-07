@@ -43,6 +43,12 @@ indices_token:
     32: G
     33: E
     34: A
+    35: '8'
+    36: '9'
+    37: Si
+    38: B
+    39: Se
+    40: te
 # The token for every index
 token_indices:
     '#': 25
@@ -58,6 +64,8 @@ token_indices:
     '5': 23
     '6': 29
     '7': 31
+    '8': 35
+    '9': 36
     '=': 7
     '@': 9
     A: 34
@@ -80,8 +88,12 @@ token_indices:
     n: 12
     o: 22
     s: 21
+    Si: 37
+    B: 38
+    Se: 39
+    te: 40
 # nr of different encoding tokens
-vocab_size: 35
+vocab_size: 41
 # max nr of SMILES tokens allowed in a SMILES string
 max_smiles_len: 200
 # min nr of SMILES tokens allowed in a SMILES string
