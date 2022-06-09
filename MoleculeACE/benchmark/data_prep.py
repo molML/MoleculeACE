@@ -2,11 +2,14 @@
 Author: Derek van Tilborg -- TU/e -- 22-05-2022
 
 A collection of data-prepping functions
-    - split_data():             split ChEMBL csv into train/test taking similarity and cliffs into account
+    - split_data():             split ChEMBL csv into train/test taking similarity and cliffs into account. If you want
+                                to process your own data, use this function
+    - process_data():           see split_data()
     - load_data():              load a pre-processed dataset from the benchmark
     - fetch_data():             download molecular bioactivity data from ChEMBL for a specific drug target
 
 """
+
 from MoleculeACE.benchmark.cliffs import ActivityCliffs, get_tanimoto_matrix
 from MoleculeACE.benchmark.const import RANDOM_SEED
 from sklearn.cluster import SpectralClustering
@@ -18,6 +21,19 @@ import numpy as np
 
 def split_data(smiles: List[str], bioactivity: List[float], in_log10: bool = False, n_clusters: int = 5,
                test_size: float = 0.2, similarity: float = 0.9, potency_fold: int = 10, remove_stereo: bool = False):
+    """ Split data into train/test according to activity cliffs and compounds characteristics.
+
+    :param smiles: (List[str]) list of SMILES strings
+    :param bioactivity: (List[float]) list of bioactivity values
+    :param in_log10: (bool) are the bioactivity values in log10?
+    :param n_clusters: (int) number of clusters the data is split into for getting homogeneous data splits
+    :param test_size: (float) test split
+    :param similarity:  (float) similarity threshold for calculating activity cliffs
+    :param potency_fold: (float) potency difference threshold for calculating activity cliffs
+    :param remove_stereo: (bool) Remove racemic mixtures altogether?
+
+    :return: df[smiles, exp_mean [nM], y, cliff_mol, split]
+    """
 
     if remove_stereo:
         stereo_smiles_idx = [smiles.index(i) for i in find_stereochemical_siblings(smiles)]
@@ -71,17 +87,35 @@ def split_data(smiles: List[str], bioactivity: List[float], in_log10: bool = Fal
                          'cliff_mol': cliff_mols,
                          'split': train_test})
 
-# TODO
-# def fetch_data(chembl_targetid='CHEMBL2047', endpoints=['EC50']):
-#     """Download and prep the data from CHEMBL. Throws out duplicates, problematic molecules, and extreme outliers"""
-#     from old.MoleculeACE.benchmark.data_processing.preprocessing.data_fetching import main_curator
-#     import os
-#
-#     # fetch + curate data
-#     data = main_curator.main(chembl_targetid=chembl_targetid, endpoints=endpoints)
-#     # write to Data directory
-#     filename = os.path.join('Data', f"{chembl_targetid}_{'_'.join(endpoints)}.csv")
-#     data.to_csv(filename)
+
+def process_data(smiles: List[str], bioactivity: List[float], in_log10: bool = False, n_clusters: int = 5,
+               test_size: float = 0.2, similarity: float = 0.9, potency_fold: int = 10, remove_stereo: bool = False):
+    """ Split data into train/test according to activity cliffs and compounds characteristics.
+
+    :param smiles: (List[str]) list of SMILES strings
+    :param bioactivity: (List[float]) list of bioactivity values
+    :param in_log10: (bool) are the bioactivity values in log10?
+    :param n_clusters: (int) number of clusters the data is split into for getting homogeneous data splits
+    :param test_size: (float) test split
+    :param similarity:  (float) similarity threshold for calculating activity cliffs
+    :param potency_fold: (float) potency difference threshold for calculating activity cliffs
+    :param remove_stereo: (bool) Remove racemic mixtures altogether?
+
+    :return: df[smiles, exp_mean [nM], y, cliff_mol, split]
+    """
+    return split_data(smiles, bioactivity, in_log10, n_clusters, test_size, similarity,  potency_fold, remove_stereo)
+
+
+def fetch_data(chembl_targetid='CHEMBL2047', endpoints=['EC50']):
+    """Download and prep the data from CHEMBL. Throws out duplicates, problematic molecules, and extreme outliers"""
+    from benchmark.data_fetching import main_curator
+    import os
+
+    # fetch + curate data
+    data = main_curator.main(chembl_targetid=chembl_targetid, endpoints=endpoints)
+    # write to Data directory
+    filename = os.path.join('Data', f"{chembl_targetid}_{'_'.join(endpoints)}.csv")
+    data.to_csv(filename)
 
 
 def find_stereochemical_siblings(smiles: List[str]):
@@ -101,4 +135,3 @@ def find_stereochemical_siblings(smiles: List[str]):
     identical_pairs = [[smiles[identical[0][i]], smiles[identical[1][i]]] for i, j in enumerate(identical[0])]
 
     return list(set(sum(identical_pairs, [])))
-
