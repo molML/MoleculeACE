@@ -4,28 +4,33 @@ Author: Derek van Tilborg -- TU/e -- 20-05-2022
 All code for featurizing a molecules into molecular descriptors, molecular graphs, one-hot endode SMILES strings and
 tokens.
 
-    - Featurizer:                   Main molecule featurizer class that converts SMILES strings to: ecfp(), maccs(),
-                                    whim(), physchem(), one_hot(), tokens(), graphs()
-
-                                        example:    x_train = Featurizer(list_of_smiles).ecfp()
+    - Featurizer:                   Main molecule featurizer class that converts SMILES strings to computable info.
+                                        example:    x_train = Featurizer().ecfp(list_of_smiles)
+        - ecfp()
+        - maccs()
+        - whim()
+        - physchem()
+        - one_hot()
+        - tokens()
+        - graphs()
 
     - OneHotEncodeSMILES:           Class that can one-hot encode SMILES strings
     - featurize_graph():            Construct a molecular graph from a SMILES string
+    - compute_whim():               Computes WHIM descriptors from a SMILES string
+    - compute_physchem():           Computes physical-chemical properties a SMILES string
 
 """
-import os.path
-
 from MoleculeACE.benchmark.const import RANDOM_SEED, Descriptors
-from MoleculeACE.benchmark.utils import get_config
+from MoleculeACE.benchmark.utils import get_config, smi_tokenizer
 from MoleculeACE.benchmark.const import CONFIG_PATH_SMILES
 from torch_geometric.data import Data
 from rdkit import Chem
 from rdkit.Chem import rdPartialCharges
 from typing import List
+from tqdm import tqdm
 import numpy as np
 import torch
-from MoleculeACE.benchmark.utils import smi_tokenizer
-from tqdm import tqdm
+import os.path
 import pickle
 
 
@@ -50,14 +55,16 @@ class Featurizer:
         self.scaler_physchem = None
         self.scaler_whim = None
 
-    def ecfp(self, smiles: List[str], radius: int = 2, nbits: int = 1024):
+    @staticmethod
+    def ecfp(smiles: List[str], radius: int = 2, nbits: int = 1024):
         """ Convert SMILES to ECFP fingerprints """
         from rdkit.Chem.AllChem import GetMorganFingerprintAsBitVect
 
         fp = [GetMorganFingerprintAsBitVect(m, radius, nBits=nbits) for m in mols_from_smiles(smiles)]
         return rdkit_numpy_convert(fp)
 
-    def maccs(self, smiles: List[str]):
+    @staticmethod
+    def maccs(smiles: List[str]):
         """ Convert SMILES to MACCs fingerprints"""
         from rdkit.Chem import MACCSkeys
 
@@ -98,10 +105,12 @@ class Featurizer:
 
         return X
 
-    def one_hot(self, smiles: List[str], truncate: bool = True):
+    @staticmethod
+    def one_hot(smiles: List[str], truncate: bool = True):
         return OneHotEncodeSMILES()(smiles, truncate)
 
-    def tokens(self, smiles: List[str], max_smiles_length: int = 200, padding: bool = True, truncation: bool = True,
+    @staticmethod
+    def tokens(smiles: List[str], max_smiles_length: int = 200, padding: bool = True, truncation: bool = True,
                auto_tokenizer: str = 'seyonec/PubChem10M_SMILES_BPE_450k'):
         """ Tokenize SMILES for a ChemBerta Transformer
 
@@ -120,7 +129,8 @@ class Featurizer:
 
         return tokens
 
-    def graphs(self, smiles: List[str]):
+    @staticmethod
+    def graphs(smiles: List[str]):
         return [featurize_graph(smi) for smi in smiles]
 
     def __call__(self, descriptor: Descriptors, **kwargs):
