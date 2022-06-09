@@ -15,7 +15,7 @@ from MoleculeACE.models.utils import NN
 
 class CNN(NN):
     def __init__(self, nchar_in: int = 41, seq_len_in: int = 202, kernel_size: int = 10, hidden: int = 128,
-                 lr: float = 0.0005, epochs: int = 100, *args, **kwargs):
+                 lr: float = 0.0005, epochs: int = 300, *args, **kwargs):
         super().__init__()
 
         self.model = CNNmodel(nchar_in=nchar_in, seq_len_in=seq_len_in, kernel_size=kernel_size, hidden=hidden)
