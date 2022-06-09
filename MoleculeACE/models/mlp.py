@@ -13,8 +13,8 @@ import os
 
 
 class MLP(NN):
-    def __init__(self, feat_in: int = 1024, n_layers: int = 3, hidden: int = 128, dropout: float = 0.2,
-                 lr: float = 0.0005, save_path: str = '.', epochs: int = 100, *args, **kwargs):
+    def __init__(self, feat_in: int = 1024, n_layers: int = 3, hidden: int = 512, dropout: float = 0,
+                 lr: float = 0.00005, save_path: str = '.', epochs: int = 500, *args, **kwargs):
         super().__init__()
 
         self.model = MLPmodel(feat_in=feat_in, n_layers=n_layers, hidden=hidden, dropout=dropout)
