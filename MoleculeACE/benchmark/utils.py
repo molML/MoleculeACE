@@ -1,6 +1,22 @@
 """
+Author: Derek van Tilborg -- TU/e -- 23-05-2022
+
 A collection of random functions that are used in different places
-Derek van Tilborg, Eindhoven University of Technology, March 2022
+
+    - Data:                     Class that holds all data, featurizes it, and can augment it
+        - featurize_data()
+        - shuffle()
+        - augment()
+    - get_config():             function to load a dict of parameters from a .yml or .json
+    - write_config():           function to write a dict of parameters to a .yml
+    - calc_rmse():              calculate Root Mean Square Error
+    - calc_cliff_rmse():        calculate Root Mean Square Error on activity cliff compounds
+    - cross_validate():         cross-validates a model and calculates RMSE and RMSE_cliff for each fold
+    - smi_tokenizer():          convert a SMILES string into character tokens
+    - augment():                add non-canonical SMILES strings and manage the labels accordingly
+    - random_smiles():          create a single random non-canonical SMILES string
+    - smile_augmentation():     create n alternative SMILES strings
+
 """
 
 from MoleculeACE.benchmark.cliffs import ActivityCliffs
@@ -10,6 +26,7 @@ from sklearn.model_selection import StratifiedKFold
 from yaml import load, Loader, dump
 from typing import List, Union
 from tqdm import tqdm
+from rdkit import Chem
 import pandas as pd
 import numpy as np
 import pickle
@@ -18,21 +35,28 @@ import json
 import os
 import re
 import random
-from rdkit import Chem
+import warnings
 
 
 class Data:
-    def __init__(self, filename: str):
+    def __init__(self, file: Union[str, pd.DataFrame]):
         """ Data class to easily load and featurize molecular bioactivity data
 
-        :param filename: (str) Filename of a .csv file with the following columns: smiles -- containing SMILES strings,
-        y -- containing labels, cliff_mol -- column with 1 if cliff compounds else 0, split -- column with 'train' if in
-        training split else 'test'. Either a full path to the file or the name of one of the included datasets works.
+        :param file: 1. (str) path to .csv file with the following columns; 'smiles': (str) SMILES strings
+                                                                                'y': (float) bioactivity values
+                                                                                'cliff_mol': (int) 1 if cliff else 0
+                                                                                'split': (str) 'train' or 'test'
+                     2. (str) name of a dataset provided with the benchmark; see MoleculeACE.benchmark.const.datasets
+                     3. (pandas.DataFrame) pandas dataframe with columns similar to 1. (see above)
         """
 
-        if filename in datasets:
-            filename = os.path.join(DATA_PATH, f"{filename}.csv")
-        df = pd.read_csv(filename)
+        # Either load a .csv file or use a provided dataframe
+        if type(file) is str:
+            if file in datasets:
+                file = os.path.join(DATA_PATH, f"{file}.csv")
+            df = pd.read_csv(file)
+        else:
+            df = file
 
         self.smiles_train = df[df['split'] == 'train']['smiles'].tolist()
         self.y_train = df[df['split'] == 'train']['y'].tolist()
@@ -52,6 +76,9 @@ class Data:
         self.augmented = 0
 
     def featurize_data(self, descriptor: Descriptors, **kwargs):
+        """ Encode your molecules with Descriptors.ECFP, Descriptors.MACCS, Descriptors.WHIM, Descriptors.PHYSCHEM,
+        Descriptors.GRAPH, Descriptors.SMILES, Descriptors.TOKENS """
+
         if descriptor is Descriptors.PHYSCHEM or descriptor is Descriptors.WHIM:
             self.x_train = self.featurizer(descriptor, smiles=self.smiles_train, scale=True, **kwargs)
             self.x_test = self.featurizer(descriptor, smiles=self.smiles_test, scale_test_on_train=True, **kwargs)
@@ -61,6 +88,7 @@ class Data:
         self.featurized_as = descriptor.name
 
     def shuffle(self):
+        """ Shuffle training data """
         c = list(zip(self.smiles_train, self.y_train, self.cliff_mols_train))  # Shuffle all lists together
         random.shuffle(c)
         self.smiles_train, self.y_train, self.cliff_mols_train = zip(*c)
@@ -70,10 +98,13 @@ class Data:
         self.cliff_mols_train = list(self.cliff_mols_train)
 
     def augment(self, augment_factor: int = 10, max_smiles_len: int = 200):
+        """ Augment training SMILES strings n times (Do this before featurizing them please)"""
         self.smiles_train, self.y_train, self.cliff_mols_train = augment(self.smiles_train, self.y_train,
                                                                          self.cliff_mols_train,
                                                                          augment_factor=augment_factor,
                                                                          max_smiles_len=max_smiles_len)
+        if len(self.y_train) > len(self.x_train):
+            warnings.warn("DON'T FORGET TO RE-FEATURIZE YOUR AUGMENTED DATA")
         self.augmented = augment_factor
 
     def __call__(self, descriptor: Descriptors, **kwargs):
@@ -110,8 +141,6 @@ def calc_rmse(true, pred):
 
     Returns: (float) rmse
     """
-    import numpy as np
-
     # Convert to 1-D numpy array if it's not
     if type(pred) is not np.array:
         pred = np.array(pred)
@@ -156,6 +185,18 @@ def calc_cliff_rmse(y_test_pred: Union[List[float], np.array], y_test: Union[Lis
 
 def cross_validate(model, data, n_folds: int = 5, early_stopping: int = 10, seed: int = RANDOM_SEED,
                    save_path: str = None, **hyperparameters):
+    """
+
+    :param model: a model that has a train(), test(), and predict() method and is initialized with its hyperparameters
+    :param data: Moleculace.benchmark.utils.Data object
+    :param n_folds: (int) n folds for cross-validation
+    :param early_stopping: (int) stop training when not making progress for n epochs
+    :param seed: (int) random seed
+    :param save_path: (str) path to save trained models
+    :param hyperparameters: (dict) dict of hyperparameters {name_of_param: value}
+
+    :return: (list) rmse_scores, (list) cliff_rmse_scores
+    """
 
     x_train = data.x_train
     y_train = data.y_train
@@ -212,9 +253,7 @@ def cross_validate(model, data, n_folds: int = 5, early_stopping: int = 10, seed
 
 
 def smi_tokenizer(smi: str):
-    """
-    Tokenize a SMILES
-    """
+    """ Tokenize a SMILES """
     pattern = "(\[|\]|Xe|Ba|Rb|Ra|Sr|Dy|Li|Kr|Bi|Mn|He|Am|Pu|Cm|Pm|Ne|Th|Ni|Pr|Fe|Lu|Pa|Fm|Tm|Tb|Er|Be|Al|Gd|Eu|te|As|Pt|Lr|Sm|Ca|La|Ti|Te|Ac|Si|Cf|Rf|Na|Cu|Au|Nd|Ag|Se|se|Zn|Mg|Br|Cl|U|V|K|C|B|H|N|O|S|P|F|I|b|c|n|o|s|p|\(|\)|\.|=|#|-|\+|\\\\|\/|:|~|@|\?|>|\*|\$|\%\d{2}|\d)"
     regex = re.compile(pattern)
     tokens = [token for token in regex.findall(smi)]
@@ -222,12 +261,12 @@ def smi_tokenizer(smi: str):
     return tokens
 
 
-def augment(smiles, *args, augment_factor=10, max_smiles_len=200):
-    """ Augment SMILES strings by adding non-canonical SMILES. Keeps corresponding activity values/CHEMBL IDs """
+def augment(smiles: List[str], *args, augment_factor: int = 10, max_smiles_len: int = 200, max_tries: int = 1000):
+    """ Augment SMILES strings by adding non-canonical SMILES. Keeps corresponding activity values/CHEMBL IDs, etc """
     augmented_smiles = []
     augmented_args = [[] for _ in args]
     for i, smi in enumerate(tqdm(smiles)):
-        generated = smile_augmentation(smi, augment_factor - 1, max_smiles_len)
+        generated = smile_augmentation(smi, augment_factor - 1, max_smiles_len, max_tries)
         augmented_smiles.append(smi)
         augmented_smiles.extend(generated)
 
@@ -252,12 +291,12 @@ def random_smiles(mol):
 smiles_encoding = get_config(CONFIG_PATH_SMILES)
 
 
-def smile_augmentation(smile, augmentation, max_len):
+def smile_augmentation(smile: str, augmentation: int, max_len: int = 200, max_tries: int = 1000):
     """Generate n random non-canonical SMILES strings from a SMILES string with length constraints"""
     # https://github.com/michael1788/virtual_libraries/blob/master/experiments/do_data_processing.py
     mol = Chem.MolFromSmiles(smile)
     s = set()
-    for i in range(1000):
+    for i in range(max_tries):
         if len(s) == augmentation:
             break
 
