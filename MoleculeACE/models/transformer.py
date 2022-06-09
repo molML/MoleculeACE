@@ -1,21 +1,30 @@
 """
 Author: Derek van Tilborg -- TU/e -- 23-05-2022
 
+Functions to run a ChemBerta transformer for bioactivity prediction. We used pre-trained weights of ChemBerta trained
+on 10 million SMILES strings from PubChem.
+
+    - RobertaRegressionHead:    regression head that is slapped on the frozen pre-trained model
+    - Transformer:              class of Transformer model
+        - train()
+        - test()
+        - predict()
+    - ChemBertaDataset:         dataset class to work with the Transformer model class
+    - chemberta_loader():       function that returns a dataloader
+
 """
 
 from MoleculeACE.benchmark.const import CONFIG_PATH_TRANS, CONFIG_PATH_GENERAL
 from MoleculeACE.benchmark.utils import get_config
-from MoleculeACE.models.utils import squeeze_if_needed
 from transformers import AutoModel
 from typing import List, Dict
-from torch.utils.data import Dataset
+from torch.utils.data import Dataset, DataLoader
 from torch import Tensor
 from torch import nn
 import pickle
 import os
 import torch
 
-general_settings = get_config(CONFIG_PATH_GENERAL)
 trans_settings = get_config(CONFIG_PATH_TRANS)
 
 
@@ -46,6 +55,8 @@ class Transformer:
         :param lr: (float) learning rate
         :param batch_size: (int) batch_size
         :param freeze_core: (bool) Freeze the core of the transformer (aka only train the regression head)
+        :param save_path: (str) path where intermediate models are stored
+        :param epochs: (int) train for n epochs (is the default for train() if no epoch argument is given there)
         """
 
         self.lr = lr
@@ -77,16 +88,20 @@ class Transformer:
         # Move model to the gpu (if applicable)
         self.model = self.model.to(self.device)
 
-
     def train(self, x_train: Dict[Tensor, Tensor], y_train: List[float], x_val: Dict[Tensor, Tensor] = None,
               y_val: List[float] = None, early_stopping_patience: int = None, epochs: int = None,
               print_every_n: int = 100, *args, **kwargs):
-        """ Train a model for n epochs
-
-        :param train_loader: Torch geometric data loader with training data
-        :param val_loader: Torch geometric data loader with validation data (optional)
-        :param epochs: (int) number of epochs to train
         """
+
+        :param x_train: (Dict[Tensor, Tensor]) dict from ChemBerta tokenizer with train data
+        :param y_train: (List[float]): train bioactivity
+        :param x_val: (Dict[Tensor, Tensor]) dict from ChemBerta tokenizer with val data
+        :param y_val: (List[float]): validation bioactivity
+        :param early_stopping_patience: (int) stop training if the model doesn't improve after n epochs
+        :param epochs: (int) epochs to train
+        :param print_every_n: (int) printout training progress every nth epoch
+        """
+
         if epochs is None:
             epochs = self.epochs
         patience = None if early_stopping_patience is None else 0
@@ -97,16 +112,16 @@ class Transformer:
             # If we reached the end of our patience, load the best model and stop training
             if patience is not None and patience >= early_stopping_patience:
 
-                    print('Stopping training early')
-                    try:
-                        with open(self.save_path, 'rb') as handle:
-                            self.model = pickle.load(handle)
+                print('Stopping training early')
+                try:
+                    with open(self.save_path, 'rb') as handle:
+                        self.model = pickle.load(handle)
 
-                        os.remove(self.save_path)
-                    except Warning:
-                        print('Could not load best model, keeping the current weights instead')
+                    os.remove(self.save_path)
+                except Warning:
+                    print('Could not load best model, keeping the current weights instead')
 
-                    break
+                break
 
             # As long as the model is still improving, continue training
             else:
@@ -133,8 +148,6 @@ class Transformer:
                 # Printout training info
                 if self.epoch % print_every_n == 0:
                     print(f"Epoch {self.epoch} | Train Loss {loss} | Val Loss {val_loss} | Patience {patience}")
-
-                # self.scatter(train_loader)
 
     def _one_epoch(self, train_loader):
 
@@ -193,8 +206,8 @@ class Transformer:
     def predict(self, x_test: Dict[Tensor, Tensor]):
         """ Perform prediction
 
-        :param data_loader:  Torch geometric data loader with data
-        :return: A 1D-tensor
+        :param x_test:  dict from the ChemBerta Tokenizer
+        :return: A 1D-tensor with predicted bioactivities
         """
 
         loader = chemberta_loader(x_test, batch_size=self.batch_size)
@@ -238,7 +251,5 @@ class ChemBertaDataset(Dataset):
 
 
 def chemberta_loader(x: Dict[Tensor, Tensor], y: List[float] = None, batch_size: int = 32):
-    from torch.utils.data import DataLoader
-
     dataset = ChemBertaDataset(x, y)
     return DataLoader(dataset, batch_size=batch_size)
