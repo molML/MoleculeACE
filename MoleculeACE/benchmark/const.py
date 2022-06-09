@@ -1,6 +1,8 @@
 """
 This file holds many variables that are used throughout MoleculeACE
-Derek van Tilborg, Eindhoven University of Technology, March 2022
+
+Author: Derek van Tilborg -- TU/e -- March 2022
+
 """
 
 import datetime
