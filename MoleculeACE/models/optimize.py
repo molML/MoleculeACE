@@ -1,3 +1,18 @@
+"""
+Author: Derek van Tilborg -- TU/e -- 27-05-2022
+
+Functions for Bayesian hyperparameter optimization with cross-validation
+
+    - BayesianOptimization:             Class that does all the heavy lifting for Bayesian optimization
+        - optimize()
+        - plot_progress()
+        - history_to_csv()
+        - save_config()
+    - dict_to_search_space():           Transforms a dict of config settings to a hyperparameter searchspace
+    - count_hyperparam_combinations()   Checks if the number of optimization tries is not exceeding whats needed
+    - cross_validate()                  function to perform n-fold cross validation
+
+"""
 
 
 from skopt import gp_minimize
@@ -16,6 +31,8 @@ from MoleculeACE.benchmark.utils import write_config
 
 class BayesianOptimization:
     def __init__(self, model):
+        """ Init the class with a trainable model. The model class should contain a train(), test(), predict() function
+        and be initialized with its hyperparameters """
         self.best_rmse = 100
         self.history = []
         self.model = model
@@ -24,7 +41,6 @@ class BayesianOptimization:
     def best_param(self):
         if len(self.history) is not None:
             return self.history[[i[0] for i in self.history].index(min([i[0] for i in self.history]))][1]
-
 
     def optimize(self, x, y, dimensions: Dict[str, List[Union[float, str, int]]], x_val=None, y_val=None,
                  n_folds: int = 5, early_stopping: int = 10, n_calls: int = 50, min_init_points: int = 10):
@@ -56,6 +72,7 @@ class BayesianOptimization:
                     pred = f.predict(x_val)
                     rmse = calc_rmse(pred, y_val)
 
+                    # Remove the model from memory and clear the GPU memory
                     del f
                     torch.cuda.empty_cache()
 
@@ -119,12 +136,7 @@ def count_hyperparam_combinations(hyperparameters: Dict[str, List[Union[float, s
     from itertools import product
     return list(product(*[v for k, v in hyperparameters.items()]))
 
-# model = Transformer
-# x = data.x_train
-# y = data.y_train
-# early_stopping = 10
-# n_folds = 5
-# hyperparameters = {'epochs': 2, 'lr': 0.0005}
+
 def cross_validate(model, x, y, n_folds: int = 5, early_stopping: int = 10, **hyperparameters):
     ss = StratifiedKFold(n_splits=n_folds, random_state=42, shuffle=True)
     cutoff = np.median(y)
@@ -172,137 +184,3 @@ def cross_validate(model, x, y, n_folds: int = 5, early_stopping: int = 10, **hy
         epochs = None
 
     return sum(rmse_scores)/len(rmse_scores), epochs
-
-
-#
-# descriptor = Descriptors.ECFP
-# algo = MLP
-#
-# data = Data(f"CHEMBL2047_EC50")
-# data(descriptor)
-#
-# config = get_config(os.path.join(CONFIG_PATH, 'default', f"{algo.__name__}.yml"))
-# # config['epochs'] = 2
-#
-# opt = BayesianOptimization(algo)
-# opt.optimize(data.x_train, data.y_train, config, n_calls=20, min_init_points=5)
-#
-# # 0.6295
-# # 0.8565
-#
-# # model = algo(**{'epochs': 2, 'lr': 0.0005, 'max_len_model': 200, 'freeze_core': True})
-# # model.train(data.x_train, data.y_train)
-# # model.predict(data.x_test)
-#
-#
-# opt.history
-# opt.plot_progress()
-#
-# hyperparameters = {'epochs': 10, 'node_hidden': 64, 'transformer_hidden': 256, 'n_conv_layers': 2, 'n_fc_layers': 3, 'fc_hidden': 128, 'dropout': 0.0, 'lr': 5e-06}
-#
-# model = algo(**hparm)
-# model.train(data.x_train, data.y_train, data.x_train, data.y_train, 10)
-# model.predict(data.x_test)
-#
-#
-# cross_validate(algo, data.x_train, data.y_train, n_folds=5, early_stopping=10, **hyperparameters)
-#
-# model = algo()
-# model.model()
-#
-# hyperparameters = {'epochs': 10, 'hidden_channels': 32, 'num_timesteps': 4, 'num_layers': 4, 'dropout': 0.1, 'lr': 0.0005}
-#
-# model = GAT
-# x = data.x_train
-# y = data.y_train
-#
-# cross_validate(AFP, data.x_train, data.y_train, **hyperparameters)
-#
-# n_folds, early_stopping = 5, 10
-#
-#
-# modl.train(data.x_train, data.y_train, epochs=2)
-#
-# modl.predict(data.x_test)
-#
-#
-# converted_value = getattr(value, "tolist", lambda: value)()
-#
-# opt.history
-# opt.plot_progress()
-# opt.history_to_csv('test_run_MLP_ECFP.csv')
-# opt.save_config('test_config_MLP_ECFP.yml')
-#
-# best_config = get_config('test_config_MLP_ECFP.yml')
-#
-#
-#
-#
-#
-#
-#
-#
-#
-# opt.history
-# opt.best_param()
-# opt.plot_progress()
-# opt.results
-# results = opt.history
-#
-#
-# dimensions = {'hidden': [64, 128, 256, 512, 1024],
-#               'n_layers': [1, 2, 3, 4, 5],
-#               'dropout': [0, 0.1, 0.2],
-#               'lr': [0.005, 0.0005, 0.00005, 0.000005]}
-#
-# count_hyperparam_combinations({'lr': [0.005, 0.0005, 0.00005, 0.000005]})
-#
-#
-# # dimensions = [Categorical(categories=[1, 2, 3, 4, 5], name='n_layers'),
-# #              Categorical(categories=[64, 128, 256 ,512, 1024], name='hidden'),
-# #              Categorical(categories=[0, 0.1, 0.2], name='dropout'),
-# #              Categorical(categories=[0.005, 0.0005, 0.00005, 0.000005], name='lr')]
-#
-# rmse = cross_validate(MLP, x, y)
-#
-#
-# calc_rmse(y_val_fold, torch.squeeze(pred))
-# calc_rmse(pred, y_val_fold)
-#
-# torch.squeeze(pred)
-#
-#
-#
-# # All hyperparameters that will be explored
-# dimensions = [Categorical(categories=[32, 64], name='node_hidden'),
-#               Categorical(categories=[32, 64], name='edge_hidden'),
-#               Integer(low=2, high=5, name='message_steps'),
-#               Categorical(categories=[0, 0.125, 0.25, 0.5], name='dropout'),
-#               Categorical(categories=[8], name='transformer_heads'),
-#               Categorical(categories=[64, 128, 256], name='transformer_hidden'),
-#               Real(low=5e-5, high=5e-2, prior='log-uniform', name='lr'),
-#               Real(low=1e-4, high=1e-1, prior='log-uniform', name='l2_lambda')]
-#
-#
-#
-# import pandas as pd
-# from MoleculeACE.benchmark.featurization import Featurizer
-# from MoleculeACE.models.gcn import GCN
-# from MoleculeACE.models.attentivefp import AFP
-# from MoleculeACE.models.ml import RF
-# from MoleculeACE.models.mlp import MLP
-#
-# df = pd.read_csv(f"MoleculeACE/Data/benchmark_data/CHEMBL233_Ki.csv")
-# smiles = df['smiles'].tolist()
-# y = df['y'].tolist()
-# feat = Featurizer()
-# x = feat.ecfp(smiles)
-#
-# xx = feat.maccs(smiles)
-# from numpy.typing import ArrayLike
-#
-# type(xx) is np.ndarray
-#
-# model = GCN()
-
-
