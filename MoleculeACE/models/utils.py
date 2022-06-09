@@ -3,8 +3,13 @@ Author: Derek van Tilborg -- TU/e -- 23-05-2022
 
 Utility functions that are used by several different models.
 
-    - GNN()                 Base GNN parent class for all graph neural network models
-    - graphs_to_loader()    Turn a list of graphs and bioactivities into a dataloader
+    - GNN():                 Base GNN parent class for all graph neural network models
+    - NN():                  Base NN parent class for all basic neural network models (MLP and CNN)
+    - graphs_to_loader():    Turn lists of molecular graphs and their bioactivities into a dataloader
+    - plot_loss():           plot the losses of Torch models
+    - scatter():             scatter plot of true/predicted for a Torch model using a dataloader
+    - numpy_loader():        simple Torch dataloader from numpy arrays
+    - squeeze_if_needed():   if the input is a squeezable tensor, squeeze it
 
 """
 
@@ -12,7 +17,6 @@ from MoleculeACE.benchmark.const import CONFIG_PATH_SMILES
 from MoleculeACE.benchmark.utils import get_config
 from torch_geometric.data import Data
 from torch_geometric.loader import DataLoader
-from tensorflow.keras.utils import Sequence
 from typing import List, Dict
 import matplotlib.pyplot as plt
 import torch
@@ -20,7 +24,6 @@ from numpy.typing import ArrayLike
 from torch.utils.data import Dataset
 import os
 import pickle
-import numpy as np
 
 
 smiles_encoding = get_config(CONFIG_PATH_SMILES)
@@ -141,8 +144,8 @@ class GNN:
             for batch in data_loader:
                 batch.to(self.device)
                 pred = self.model(batch.x.float(), batch.edge_index, batch.edge_attr.float(), batch.batch)
-                y_pred.extend(squeeze_if_needed(pred).tolist())
-                y.extend(squeeze_if_needed(batch.y).tolist())
+                y_pred.extend([i for i in squeeze_if_needed(pred).tolist()])
+                y.extend([i for i in squeeze_if_needed(batch.y).tolist()])
 
         return torch.tensor(y_pred), torch.tensor(y)
 
@@ -159,13 +162,12 @@ class GNN:
             for batch in loader:
                 batch.to(self.device)
                 y_hat = self.model(batch.x.float(), batch.edge_index, batch.edge_attr.float(), batch.batch)
-                y_pred.extend(squeeze_if_needed(y_hat).tolist())
+                y_pred.extend([i for i in squeeze_if_needed(y_hat).tolist()])
 
         return torch.tensor(y_pred)
 
     def __repr__(self):
         return 'Basic Graph Neural Network Class'
-
 
 
 class NN:
@@ -302,116 +304,6 @@ class NN:
 
     def __repr__(self):
         return f"Neural Network baseclass for NN taking numpy arrays"
-
-
-
-class DataGeneratorNextToken(Sequence):
-    """Generates one-hot encoded smiles + next token data for Keras"""
-
-    def __init__(self, encoded_smiles, batch_size: int = 32, max_len_model: int = smiles_encoding['max_smiles_len'] + 2,
-                 n_chars: int = smiles_encoding['vocab_size'], indices_token: dict = smiles_encoding['indices_token'],
-                 token_indices: dict = smiles_encoding['token_indices'], shuffle: bool = True):
-        """Initialization"""
-        self.max_len_model = max_len_model
-        self.batch_size = batch_size
-        self.encoded_smiles = encoded_smiles
-        self.shuffle = shuffle
-        self.n_chars = n_chars
-
-        self.on_epoch_end()
-
-        self.indices_token = indices_token
-        self.token_indices = token_indices
-
-    def __len__(self):
-        """Denotes the number of batches per epoch"""
-        return int(np.floor(len(self.encoded_smiles) / self.batch_size))
-
-    def __getitem__(self, index):
-        """Generate one batch of data"""
-        # Generate indexes of the batch
-        indexes = self.indexes[index * self.batch_size:(index + 1) * self.batch_size]
-
-        # Generate data
-        x, y = self.__data_generation(indexes)
-
-        return x, y
-
-    def on_epoch_end(self):
-        """Updates indexes after each epoch"""
-        self.indexes = np.arange(len(self.encoded_smiles))
-        if self.shuffle:
-            np.random.shuffle(self.indexes)
-
-    def __data_generation(self, list_ids_temp):
-        """Generates batch of data containing batch_size samples"""
-
-        switch = 1
-        y = np.empty((self.batch_size, self.max_len_model - switch, self.n_chars), dtype=int)
-        x = np.empty((self.batch_size, self.max_len_model - switch, self.n_chars), dtype=int)
-
-        # Generate data
-        for i, ID in enumerate(list_ids_temp):
-            smi = self.encoded_smiles[ID]
-            x[i] = smi[:-1]
-            y[i] = smi[1:]
-
-        return x, y
-
-
-class DataGeneratorRegression(Sequence):
-    """Generates one-hot encoded smiles + regression data for Keras"""
-
-    def __init__(self, encoded_smiles, activities, batch_size: int = 32,
-                 max_len_model: int = smiles_encoding['max_smiles_len'] + 2,
-                 n_chars: int = smiles_encoding['vocab_size'],
-                 indices_token: dict = smiles_encoding['indices_token'],
-                 token_indices: dict = smiles_encoding['token_indices'], shuffle: bool = True):
-
-        """Initialization"""
-        self.max_len_model = max_len_model
-        self.batch_size = batch_size
-        self.encoded_smiles = encoded_smiles
-        self.activities = activities
-        self.shuffle = shuffle
-        self.n_chars = n_chars
-
-        self.on_epoch_end()
-
-        self.indices_token = indices_token
-        self.token_indices = token_indices
-
-    def __len__(self):
-        """Denotes the number of batches per epoch"""
-        return int(np.floor(len(self.encoded_smiles) / self.batch_size))
-
-    def __getitem__(self, index):
-        """Generate one batch of data"""
-        # Generate indexes of the batch
-        indexes = self.indexes[index * self.batch_size:(index + 1) * self.batch_size]
-        # Generate data
-        x, y = self.__data_generation(indexes)
-
-        return x, y
-
-    def on_epoch_end(self):
-        """Updates indexes after each epoch"""
-        self.indexes = np.arange(len(self.encoded_smiles))
-        if self.shuffle:
-            np.random.shuffle(self.indexes)
-
-    def __data_generation(self, indexes):
-        """Generates batch of data containing batch_size samples"""
-        switch = 1
-        y = np.empty((self.batch_size, 1), dtype=float)
-        x = np.empty((self.batch_size, self.max_len_model - switch, self.n_chars), dtype=int)
-
-        # Generate data
-        for i, ID in enumerate(indexes):
-            x[i] = self.encoded_smiles[ID][:-1]
-            y[i] = self.activities[ID]
-
-        return x, y
 
 
 class NumpyDataset(Dataset):
