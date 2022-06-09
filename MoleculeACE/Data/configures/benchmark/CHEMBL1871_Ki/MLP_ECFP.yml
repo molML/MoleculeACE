@@ -1,5 +1,4 @@
 dropout: 0.0
-epochs: 17
-hidden: 1024
-lr: 5.0e-05
+hidden: 512
+lr: 5.0e-06
 n_layers: 5
