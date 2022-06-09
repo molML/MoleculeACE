@@ -3,8 +3,15 @@ Author: Derek van Tilborg -- TU/e -- 25-05-2022
 
 Code to compute activity cliffs
 
-"""
+    - ActivityCliffs:                   Class that takes care of computing activity cliffs
+    - find_fc():                        Calculate the fold change
+    - get_fc():                         Compute the pairwise fold change
+    - get_levenshtein_matrix():         Compute the pairwise Levenshtein similarity
+    - get_tanimoto_matrix():            Compute the pairwise Tanimoto similarity
+    - get_scaffold_matrix():            Compute the pairwise scaffold similarity
+    - moleculeace_similarity():         Compute the consensus similarity (being >0.9 in at least one similarity type)
 
+"""
 
 from typing import List, Callable, Union
 import numpy as np
