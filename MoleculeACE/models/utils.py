@@ -143,9 +143,14 @@ class GNN:
         with torch.no_grad():
             for batch in data_loader:
                 batch.to(self.device)
-                pred = self.model(batch.x.float(), batch.edge_index, batch.edge_attr.float(), batch.batch)
-                y_pred.extend([i for i in squeeze_if_needed(pred).tolist()])
-                y.extend([i for i in squeeze_if_needed(batch.y).tolist()])
+                y_hat = self.model(batch.x.float(), batch.edge_index, batch.edge_attr.float(), batch.batch)
+                y_hat = squeeze_if_needed(y_hat).tolist()
+                if type(y_hat) is list:
+                    y_pred.extend(y_hat)
+                    y.extend(squeeze_if_needed(batch.y).tolist())
+                else:
+                    y_pred.append(y_hat)
+                    y.append(squeeze_if_needed(batch.y).tolist())
 
         return torch.tensor(y_pred), torch.tensor(y)
 
@@ -162,7 +167,12 @@ class GNN:
             for batch in loader:
                 batch.to(self.device)
                 y_hat = self.model(batch.x.float(), batch.edge_index, batch.edge_attr.float(), batch.batch)
-                y_pred.extend([i for i in squeeze_if_needed(y_hat).tolist()])
+                y_hat = squeeze_if_needed(y_hat).tolist()
+                if type(y_hat) is list:
+                    y_pred.extend(y_hat)
+                else:
+                    y_pred.append(y_hat)
+
 
         return torch.tensor(y_pred)
 
@@ -279,9 +289,15 @@ class NN:
             for batch in data_loader:
                 x = batch[0].to(self.device)
                 y = batch[1].to(self.device)
-                pred = self.model(x.float())
-                y_pred.extend([i for i in squeeze_if_needed(pred).tolist()])
-                y_true.extend([i for i in squeeze_if_needed(y).tolist()])
+                y_hat = self.model(x.float())
+                if type(y_hat) is list:
+                    y_pred.extend(y_hat)
+                    y_true.extend(squeeze_if_needed(y).tolist())
+                else:
+                    y_pred.append(y_hat)
+                    y_true.append(squeeze_if_needed(y).tolist())
+                # y_pred.extend([i for i in squeeze_if_needed(pred).tolist()])
+                # y_true.extend([i for i in squeeze_if_needed(y).tolist()])
 
         return torch.tensor(y_pred), torch.tensor(y)
 
@@ -298,7 +314,13 @@ class NN:
             for batch in data_loader:
                 x = batch[0].to(self.device)
                 y_hat = self.model(x.float())
-                y_pred.extend([i for i in squeeze_if_needed(y_hat).tolist()])
+                y_hat = squeeze_if_needed(y_hat).tolist()
+
+                if type(y_hat) is list:
+                    y_pred.extend(y_hat)
+                else:
+                    y_pred.append(y_hat)
+                # y_pred.extend([i for i in squeeze_if_needed(y_hat).tolist()])
 
         return torch.tensor(y_pred)
 
