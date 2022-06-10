@@ -19,7 +19,7 @@ import torch
 class GCN(GNN):
     def __init__(self, node_feat_in: int = 37, node_hidden: int = 128, transformer_hidden: int = 128,
                  n_conv_layers: int = 4, n_fc_layers: int = 4, fc_hidden: int = 128, lr: float = 0.0005,
-                 epochs: int = 100, dropout: float = 0.2, *args, **kwargs):
+                 epochs: int = 300, dropout: float = 0.2, *args, **kwargs):
         super().__init__()
 
         self.model = GCNmodel(node_feat_in=node_feat_in, node_hidden=node_hidden, n_conv_layers=n_conv_layers,
