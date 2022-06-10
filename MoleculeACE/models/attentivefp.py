@@ -15,7 +15,7 @@ from MoleculeACE.models.utils import GNN
 
 class AFP(GNN):
     def __init__(self, in_channels: int = 37, edge_dim: int = 6, hidden_channels: int = 128, num_layers: int = 4,
-                 num_timesteps: int = 3, dropout: int = 0.2, lr: float = 0.0005, epochs: int = 100, *args, **kwargs):
+                 num_timesteps: int = 3, dropout: int = 0.2, lr: float = 0.0005, epochs: int = 300, *args, **kwargs):
         super().__init__()
 
         self.model = AttentiveFP(in_channels=in_channels, edge_dim=edge_dim, hidden_channels=hidden_channels,
