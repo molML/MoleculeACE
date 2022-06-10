@@ -22,7 +22,7 @@ class MPNN(GNN):
     def __init__(self, node_in_feats: int = 37, node_hidden: int = 64, edge_in_feats: int = 6,
                  edge_hidden: int = 128, message_steps: int = 3, dropout: float = 0.2,
                  transformer_heads: int = 8, transformer_hidden: int = 128, seed: int = RANDOM_SEED,
-                 fc_hidden: int = 64, n_fc_layers: int = 1, lr: float = 0.0005, epochs: int = 100, *args, **kwargs):
+                 fc_hidden: int = 64, n_fc_layers: int = 1, lr: float = 0.0005, epochs: int = 300, *args, **kwargs):
         super().__init__()
 
         self.model = MPNNmodel(node_in_feats=node_in_feats, node_hidden=node_hidden, edge_in_feats=edge_in_feats,
