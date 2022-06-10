@@ -20,7 +20,7 @@ class GAT(GNN):
     def __init__(self, node_feat_in: int = 37, n_fc_layers: int = 1, node_hidden: int = 128,
                  fc_hidden: int = 128, n_gat_layers: int = 3, transformer_hidden: int = 128,
                  n_gat_attention_heads: int = 8, dropout: float = 0.2, seed: int = RANDOM_SEED, gatv2: bool = False,
-                 lr: float = 0.0005, epochs: int = 100, *args, **kwargs):
+                 lr: float = 0.0005, epochs: int = 300, *args, **kwargs):
         super().__init__()
 
         self.model = GATmodel(node_feat_in=node_feat_in, n_fc_layers=n_fc_layers, node_hidden=node_hidden,
