@@ -114,7 +114,7 @@ results = evaluation.evaluate(data=data, predictions=predictions)
 
 ## How to cite
 ***
-tbd
+van Tilborg et al. (2022). Exposing the limitations of molecular machine learning with activity cliffs. ChemRxiv.
 
 ## License
 ***
