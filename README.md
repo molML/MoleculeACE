@@ -1,4 +1,4 @@
-### New release coming mid June!
+### New release coming mid June! This will support Transformers, include an overhaul of all graph neural network models and, the overall structure of the tool will be much more modular and easier to use.
 
 ![MolDox logo](img/MoleculeACE.png?raw=true "Title")
 ***
