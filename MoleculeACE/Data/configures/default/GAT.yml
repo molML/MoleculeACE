@@ -6,6 +6,7 @@ node_hidden:
   - 64
   - 128
   - 256
+  - 512
 fc_hidden:
   - 128
   - 256
@@ -14,6 +15,8 @@ n_fc_layers:
   - 1
   - 2
   - 3
+  - 4
+  - 5
 n_gat_layers:
   - 1
   - 2
@@ -21,17 +24,16 @@ n_gat_layers:
   - 4
   - 5
 transformer_hidden:
+  - 64
   - 128
   - 256
+  - 512
 gatv2:
   - true
   - false
 dropout:
   - 0
-  - 0.1
-  - 0.2
 lr:
-  - 0.005
   - 0.0005
   - 0.00005
   - 0.000005

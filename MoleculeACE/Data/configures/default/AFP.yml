@@ -1,5 +1,5 @@
 # Standard hyperparameters for AttentiveFP
-epochs: 300
+epochs: 200
 hidden_channels:
   - 32
   - 64
@@ -21,10 +21,7 @@ num_layers:
 # Dropout uniformly distributed between 0 and 0.2
 dropout:
   - 0
-  - 0.1
-  - 0.2
 lr:
-  - 0.005
   - 0.0005
   - 0.00005
   - 0.000005
