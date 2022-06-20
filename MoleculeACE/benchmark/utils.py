@@ -116,6 +116,17 @@ class Data:
         return f"Data object with molecules as: {self.featurized_as}. {len(self.y_train)} train/{len(self.y_test)} test"
 
 
+def load_model(filename: str):
+    """ Load a model """
+    if filename.endswith['.h5']:
+        from tensorflow.keras.models import load_model
+        model = load_model(pretrained_model)
+    else:
+        with open(filename, 'rb') as handle:
+            model = pickle.load(handle)
+    return model
+
+
 def get_config(file: str):
     """ Load a yml config file"""
     if file.endswith('.yml') or file.endswith('.yaml'):
