@@ -67,8 +67,8 @@ def main():
                                                random_state=RANDOM_SEED)
 
     # augment all training/val smiles
-    train_smiles = augment(train_smiles, augment_factor=AUGMENT)
-    val_smiles = augment(val_smiles, augment_factor=AUGMENT)
+    train_smiles = augment(train_smiles, augment_factor=AUGMENT)[0]
+    val_smiles = augment(val_smiles, augment_factor=AUGMENT)[0]
 
     # One-hot encode all SMILES
     x_train = Featurizer().one_hot(train_smiles)
@@ -90,18 +90,8 @@ def main():
     acc = np.mean([int(t == p) for t, p in zip(y_true, y_hat) if p != pad_char_idx])
     print(f"Accuracy: {acc:.4f}")
 
+    pd.DataFrame({"accuracy": [acc]}).to_csv('pretraining_acc.csv', index=False)
+
 
 if __name__ == '__main__':
     main()
-
-
-# with open("pretrain_smiles_split.pkl", 'wb') as handle:
-#     pickle.dump({'train': train_smiles, 'val': val_smiles, 'test': test_smiles},
-#                 handle, protocol=pickle.HIGHEST_PROTOCOL)
-#
-# with open("pretrain_smiles_split.pkl", 'rb') as handle:
-#     train_data = pickle.load(handle)
-#
-# train_smiles = train_data['train']
-# val_smiles = train_data['val']
-# test_smiles = train_data['test']
