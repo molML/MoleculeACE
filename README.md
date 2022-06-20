@@ -1,7 +1,7 @@
 ![MolDox logo](img/MoleculeACE.png?raw=true "Title")
 ***
 
-![repo version](https://img.shields.io/badge/Version-v.%201.0-green)
+![repo version](https://img.shields.io/badge/Version-v.%202.0-green)
 ![python version](https://img.shields.io/badge/python-v.3.8-blue)
 ![license](https://img.shields.io/badge/license-MIT-orange)
 
@@ -33,7 +33,7 @@ predict.
 ***
 
 Any regression model can be evaluated on activity cliff performance using MoleculeACE on third party data or the 30
-included molecular bioactivity data sets. All 23 machine learning strategies covered in our benchmark study can be used 
+included molecular bioactivity data sets. All 24 machine learning strategies covered in our benchmark study can be used 
 out of the box.
 
 ![MolDox logo](img/moleculeACE_example.png?raw=true "activity_cliff_example")
@@ -41,11 +41,10 @@ out of the box.
 
 ## Requirements
 ***
-MoleculeACE currently supports Python 3.8
-- [tensorflow](https://www.tensorflow.org/)
-- [pytorch](https://pytorch.org/)
-- [dgl](https://www.dgl.ai/) 
-- [dgllife](https://lifesci.dgl.ai/)
+MoleculeACE currently supports Python 3.8. Some required deep learning packages are not included in the pip install. 
+- [Tensorflow](https://www.tensorflow.org/) (2.9.0)
+- [PyTorch](https://pytorch.org/) (1.11.0)
+- [PyTorch Geometric](https://pytorch-geometric.readthedocs.io/en/latest/) (2.0.4)
 
 ## Installation
 ***
@@ -57,62 +56,40 @@ MoleculeACE can be installed as
 ```git clone https://github.com/derekvantilborg/MoleculeACE```
 
 ```
-pip install rdkit-pypi pandas numpy pandas chembl_webresource_client scikit-learn matplotlib tqdm progress python-Levenshtein
+pip install rdkit-pypi pandas numpy pandas chembl_webresource_client scikit-learn matplotlib tqdm python-Levenshtein
 ```
 
 ### Getting started
 ***
 
-#### Run an out-of-the-box model on one of the many included datasets
+#### Train an out-of-the-box model on one of the many included datasets
 
 ```python
-from MoleculeACE.benchmark import load_data, models, evaluation, utils
-
-# Define which dataaset, descriptor, and algorithm to use
-dataset = 'CHEMBL287_Ki'
-descriptor = utils.Descriptors.CANONICAL_GRAPH
-algorithm = utils.Algorithms.MPNN
+from MoleculeACE import MPNN, Data, Descriptors, calc_rmse, calc_cliff_rmse
 
 # Load data
-data = load_data(dataset, descriptor=descriptor)
+data = Data('CHEMBL2034_Ki')
+
+# Featurize SMILES strings with a specific method
+data(Descriptors.GRAPH)
 
 # Train and a model, if config_file = None, hyperparameter optimization is performed
-model = models.train_model(data, algorithm=algorithm, config_file=None)
-predictions = model.test_predict()
+model = MPNN()
+model.train(data.x_train, data.y_train)
+y_hat = model.predict(data.x_test)
 
 # Evaluate your model on activity cliff compounds
-results = evaluation.evaluate(data=data, predictions=predictions)
-```
+rmse = calc_rmse(data.y_test, y_hat)
+rmse_cliff = calc_cliff_rmse(y_test_pred=y_hat, y_test=data.y_test, cliff_mols_test=data.cliff_mols_test)
 
-
-#### Evaluate your own data or model
-
-```python
-from MoleculeACE.benchmark import load_data, models, evaluation, utils, process_data
-
-# Setup some variables
-dataset = 'path/to/your_own_data.csv'
-descriptor = utils.Descriptors.ECFP
-algorithm = utils.Algorithms.GBM
-
-    # Process your data data
-process_data(dataset, smiles_colname='smiles', y_colname='exp_mean [nM]', test_size=0.2,
-             fold_threshold=10, similarity_threshold=0.9)
-
-# Load data
-data = load_data(dataset, descriptor=descriptor, tolog10=True)
-
-# Train and optimize a model. You can also implement your own model here
-model = models.train_model(data, algorithm=algorithm, config_file=None)
-predictions = model.test_predict()
-
-# Evaluate your model on activity cliff compounds
-results = evaluation.evaluate(data=data, predictions=predictions)
+print(f"rmse: {rmse}\nrmse_cliff: {rmse_cliff}")
 ```
 
 ## How to cite
 ***
-tbd
+You can currently cite our [pre-print](https://chemrxiv.org/engage/chemrxiv/article-details/623de3fbab0051148698fbcf):
+
+van Tilborg *et al.* (2022). Exposing the limitations of molecular machine learning with activity cliffs. ChemRxiv.   
 
 ## License
 ***
