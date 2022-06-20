@@ -28,6 +28,7 @@ from typing import List, Union
 from tqdm import tqdm
 from rdkit import Chem
 import pandas as pd
+import tensorflow as tf
 import numpy as np
 import pickle
 import torch
@@ -103,8 +104,9 @@ class Data:
                                                                          self.cliff_mols_train,
                                                                          augment_factor=augment_factor,
                                                                          max_smiles_len=max_smiles_len)
-        if len(self.y_train) > len(self.x_train):
-            warnings.warn("DON'T FORGET TO RE-FEATURIZE YOUR AUGMENTED DATA")
+        if self.x_train is not None:
+            if len(self.y_train) > len(self.x_train):
+                warnings.warn("DON'T FORGET TO RE-FEATURIZE YOUR AUGMENTED DATA")
         self.augmented = augment_factor
 
     def __call__(self, descriptor: Descriptors, **kwargs):
@@ -233,8 +235,11 @@ def cross_validate(model, data, n_folds: int = 5, early_stopping: int = 10, seed
 
         # Save model to "save_path+_{fold}.pkl"
         if save_path is not None:
-            with open(f"{save_path.split('.')[-2]}_{i_split}.{save_path.split('.')[-1]}", 'wb') as handle:
-                pickle.dump(f, handle, protocol=pickle.HIGHEST_PROTOCOL)
+            if save_path.endswith('.h5'):
+                f.model.save(f"{save_path.split('.')[-2]}_{i_split}.{save_path.split('.')[-1]}")
+            else:
+                with open(f"{save_path.split('.')[-2]}_{i_split}.{save_path.split('.')[-1]}", 'wb') as handle:
+                    pickle.dump(f, handle, protocol=pickle.HIGHEST_PROTOCOL)
 
         y_hat = f.predict(x_test)
 
@@ -247,6 +252,7 @@ def cross_validate(model, data, n_folds: int = 5, early_stopping: int = 10, seed
 
         del f
         torch.cuda.empty_cache()
+        tf.keras.backend.clear_session()
 
     # Return the rmse and cliff rmse for all folds
     return rmse_scores, cliff_rmse_scores
