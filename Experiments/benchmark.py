@@ -31,12 +31,12 @@ def write_results(filename, dataset, algo, descriptor, augmentation, rmse, cliff
     # Create output file if it doesn't exist already
     if not os.path.isfile(filename):
         with open(filename, 'w') as f:
-            f.write('dataset, algorithm, descriptor, augmentation, rmse, cliff_rmse, n_compounds, n_cliff_compounds,'
-                    'n_compounds_train, n_cliff_compounds_train, n_compounds_test, n_cliff_compounds_test\n')
+            f.write('dataset,algorithm,descriptor,augmentation,rmse,cliff_rmse,n_compounds,n_cliff_compounds,'
+                    'n_compounds_train,n_cliff_compounds_train,n_compounds_test,n_cliff_compounds_test\n')
     with open(filename, 'a') as f:
-        f.write(f'{dataset}, {algo}, {descriptor}, {augmentation}, {rmse}, {cliff_rmse}, '
-                f'{len(data.y_train) + len(data.y_test)}, {sum(data.cliff_mols_train) + sum(data.cliff_mols_test)},'
-                f'{len(data.y_train)}, {sum(data.cliff_mols_train)}, {len(data.y_test)}, {sum(data.cliff_mols_test)}\n')
+        f.write(f'{dataset},{algo},{descriptor},{augmentation}, {rmse}, {cliff_rmse},'
+                f'{len(data.y_train) + len(data.y_test)},{sum(data.cliff_mols_train) + sum(data.cliff_mols_test)},'
+                f'{len(data.y_train)},{sum(data.cliff_mols_train)},{len(data.y_test)},{sum(data.cliff_mols_test)}\n')
 
 
 def main(results_filename: str = "MoleculeACE_results.csv"):
