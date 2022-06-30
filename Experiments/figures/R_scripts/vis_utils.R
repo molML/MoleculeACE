@@ -12,6 +12,7 @@ library(ggrepel)
 library(factoextra)
 library(wesanderson)
 library(scales)
+library(corrplot)
 
 # # Default colour palette I use for most plots
 # cols = c('#121531', '#27275d' , '#2059a8', '#3bb1e6', '#89d7e9',
