@@ -20,6 +20,18 @@ library(scales)
 #          '#13714c', '#269932', '#4bb54b', '#8dc409', '#c7da24')
 # show_col(cols, ncol=5)
 
+# Match dataset abbreviation to its name
+dataset_abbrv = data.frame(abbrv = c('AR','CB1','FX','DOR','D3R','D4R','DAT','CLK4','FXR','GHSR','GR','GSK3','HRH1',
+                                     'HRH3','JAK1','JAK2', 'KOR (a)','KOR (i)','MOR','OX2R','PPARa','PPARy','PPARd'
+                                     ,'PIK3CA','PIM1','5-HT1A','SERT','SOR','Thrombin','ABL1'),
+                           dataset = c('CHEMBL1871_Ki','CHEMBL218_EC50','CHEMBL244_Ki','CHEMBL236_Ki','CHEMBL234_Ki',
+                                       'CHEMBL219_Ki','CHEMBL238_Ki', 'CHEMBL4203_Ki','CHEMBL2047_EC50',
+                                       'CHEMBL4616_EC50','CHEMBL2034_Ki','CHEMBL262_Ki','CHEMBL231_Ki','CHEMBL264_Ki',
+                                       'CHEMBL2835_Ki','CHEMBL2971_Ki','CHEMBL237_EC50','CHEMBL237_Ki','CHEMBL233_Ki',
+                                       'CHEMBL4792_Ki','CHEMBL239_EC50', 'CHEMBL3979_EC50','CHEMBL235_EC50',
+                                       'CHEMBL4005_Ki','CHEMBL2147_Ki','CHEMBL214_Ki','CHEMBL228_Ki','CHEMBL287_Ki',
+                                       'CHEMBL204_Ki','CHEMBL1862_Ki'))
+
 # Colours per descriptor type
 descr_cols = list(cols = c('#2059a8','#3bb1e6','#fb5a00','#ff9d00','#ffffff', '#0B7344', '#40B87E',
                            '#27275d', '#27275d'),
@@ -95,13 +107,13 @@ default_theme = theme(
   panel.background = element_blank(),
   plot.title = element_text(hjust = 0.5, face = "plain"),
   # axis.ticks.y = element_blank(),
-  axis.text.y = element_text(size=8, face="plain", colour = "black"),
-  axis.text.x = element_text(size=8, face="plain", colour = "black"),
-  axis.title.x = element_text(size=8, face="plain", colour = "black"),
-  axis.title.y = element_text(size=8, face="plain", colour = "black"),
+  axis.text.y = element_text(size=6, face="plain", colour = "black"),
+  axis.text.x = element_text(size=6, face="plain", colour = "black"),
+  axis.title.x = element_text(size=6, face="plain", colour = "black"),
+  axis.title.y = element_text(size=6, face="plain", colour = "black"),
   legend.key = element_blank(),
   legend.position = 'bottom', legend.box = "vertical",
   legend.title = element_blank(),
   legend.background = element_blank(),
-  panel.grid.major = element_line(colour = "white"),
-  panel.grid.minor = element_line(colour = "white"))
+  panel.grid.major = element_blank(),
+  panel.grid.minor = element_blank())
