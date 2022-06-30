@@ -9,6 +9,8 @@ Code to compute activity cliffs
     - get_levenshtein_matrix():         Compute the pairwise Levenshtein similarity
     - get_tanimoto_matrix():            Compute the pairwise Tanimoto similarity
     - get_scaffold_matrix():            Compute the pairwise scaffold similarity
+    - get_mmp_matrix():                 Compute a matrix of Matched Molecular Pairs
+    - mmp_similarity():                 Compute binary mmp similarity matrix
     - moleculeace_similarity():         Compute the consensus similarity (being >0.9 in at least one similarity type)
 
 """
@@ -18,6 +20,7 @@ import numpy as np
 from rdkit import Chem
 from rdkit.Chem import AllChem
 from rdkit.Chem import DataStructs
+from rdkit.Chem.rdMMPA import FragmentMol
 from Levenshtein import distance as levenshtein
 from tqdm import tqdm
 
@@ -26,15 +29,28 @@ from rdkit.Chem.Scaffolds.MurckoScaffold import GetScaffoldForMol
 
 
 class ActivityCliffs:
+    """ Activity cliff class that computes cliff compounds """
     def __init__(self, smiles: List[str], bioactivity: Union[List[float], np.array]):
         self.smiles = smiles
         self.bioactivity = list(bioactivity) if type(bioactivity) is not list else bioactivity
         self.cliffs = None
 
     def find_cliffs(self, similarity: float = 0.9, potency_fold: float = 10, in_log10: bool = True,
-                    custom_cliff_function: Callable = None):
+                    custom_cliff_function: Callable = None, mmp: bool = False):
+        """ Compute activity cliffs
 
-        sim = moleculeace_similarity(self.smiles, similarity)
+        :param similarity: (float) threshold value to determine structural similarity
+        :param potency_fold: (float) threshold value to determine difference in bioactivity
+        :param in_log10: (bool) is you bioactivty in log10 nM?
+        :param custom_cliff_function: (Callable) function that takes: smiles: List[str] and similarity: float and
+          returns a square binary matrix where 1 is similar and 0 is not.
+        :param mmp: (bool) use matched molecular pairs to determine similarity instead
+        """
+
+        if mmp:
+            sim = mmp_similarity(self.smiles)
+        else:
+            sim = moleculeace_similarity(self.smiles, similarity)
 
         if custom_cliff_function is not None:
             custom_sim = custom_cliff_function(self.smiles, similarity)
@@ -47,6 +63,12 @@ class ActivityCliffs:
         return self.cliffs
 
     def get_cliff_molecules(self, return_smiles: bool = True, **kwargs):
+        """
+
+        :param return_smiles: (bool) return activity cliff molecules as a list of SMILES strings
+        :param kwargs: arguments for ActivityCliffs.find_cliffs()
+        :return: (List[int]) returns a binary list where 1 means activity cliff compounds
+        """
         if self.cliffs is None:
             self.find_cliffs(**kwargs)
 
@@ -61,6 +83,7 @@ class ActivityCliffs:
 
 def find_fc(a: float, b: float):
     """Get the fold change of to bioactivities (deconvert from log10 if needed)"""
+
     return max([a, b]) / min([a, b])
 
 
@@ -163,6 +186,77 @@ def get_scaffold_matrix(smiles: List[str], radius: int = 2, nBits: int = 1024):
     np.fill_diagonal(m, 0)
 
     return m
+
+
+def find_fragments(smiles: List[str]):
+    """ Build a database of molecular fragments for matched molecular pair analysis. Molecular fragmentation from the
+    Hussain and Rae algorithm is used. We only use a single cut (true to the original MMP idea) """
+
+    db = {}
+    for smi in smiles:
+        m = Chem.MolFromSmiles(smi)
+        cuts = FragmentMol(m, maxCuts=1, resultsAsMols=False)
+
+        # extract all not None fragments into a flat list
+        fragments = sum([[i for i in cut if i != ''] for cut in cuts], [])
+
+        # Keep the largest fragment as the core structure.
+        for i, frag in enumerate(fragments):
+            split_frags = frag.split('.')
+            if Chem.MolFromSmiles(split_frags[0]).GetNumAtoms() >= Chem.MolFromSmiles(split_frags[-1]).GetNumAtoms():
+                core = split_frags[0]
+            else:
+                core = split_frags[-1]
+
+            # Ignore dummy variables for matching (otherwise you will never get a match). Dummies are introduced during
+            # fragmentation
+            qp = Chem.AdjustQueryParameters()
+            qp.makeDummiesQueries = True
+            qp.adjustDegreeFlags = Chem.ADJUST_IGNOREDUMMIES
+            fragments[i] = Chem.AdjustQueryProperties(Chem.MolFromSmiles(core), qp)
+        # Add all core fragments to the dictionary
+        db[smi] = fragments
+
+    return db
+
+
+def mmp_match(smiles: str, fragments: List):
+    """ Check if fragments (provided as rdkit Mol objects are substructures of another molecule (from SMILES string) """
+
+    m = Chem.MolFromSmiles(smiles)
+    for frag in fragments:
+        # Match fragment on molecule
+        if m.HasSubstructMatch(frag):
+            return 1
+    return 0
+
+
+def get_mmp_matrix(smiles: List[str]):
+    """ Calculates a matrix of matched molecular pairs for a list of SMILES string"""
+
+    # Make a fingerprint database
+    db_frags = find_fragments(smiles)
+
+    smi_len = len(smiles)
+    m = np.zeros([smi_len, smi_len])
+    # Calculate upper triangle of matrix.
+    for i in tqdm(range(smi_len)):
+        for j in range(i, smi_len):
+            m[i, j] = mmp_match(smiles[i], db_frags[smiles[j]])
+
+    # Fill in the lower triangle without having to loop (saves ~50% of time)
+    m = m + m.T - np.diag(np.diag(m))
+
+    # Fill the diagonal with 0's
+    np.fill_diagonal(m, 0)
+
+    return m
+
+
+def mmp_similarity(smiles: List[str], similarity=None):
+    """ Calculate which pairs of molecules are matched molecular pairs """
+
+    return (get_mmp_matrix(smiles) > 0).astype(int)
 
 
 def moleculeace_similarity(smiles: List[str], similarity: float = 0.9):
