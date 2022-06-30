@@ -28,7 +28,6 @@ from typing import List, Union
 from tqdm import tqdm
 from rdkit import Chem
 import pandas as pd
-import tensorflow as tf
 import numpy as np
 import pickle
 import torch
@@ -37,6 +36,7 @@ import os
 import re
 import random
 import warnings
+import tensorflow as tf
 
 
 class Data:
@@ -118,9 +118,9 @@ class Data:
 
 def load_model(filename: str):
     """ Load a model """
-    if filename.endswith['.h5']:
+    if filename.endswith('.h5'):
         from tensorflow.keras.models import load_model
-        model = load_model(pretrained_model)
+        model = load_model(filename)
     else:
         with open(filename, 'rb') as handle:
             model = pickle.load(handle)
