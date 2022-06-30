@@ -40,13 +40,14 @@ smiles_encoding = get_config(CONFIG_PATH_SMILES)
 class LSTM:
     def __init__(self, pretrained_model: str = os.path.join(WORKING_DIR, "pretrained_models", "pretrained_lstm.h5"),
                  nchar_in: int = 41, hidden_0: int = 1024, hidden_1: int = 256,
-                 dropout: float = 0.4, lr: float = 0.0005, epochs: int = 100, *args, **kwargs):
+                 dropout: float = 0.4, lr: float = 0.0005, epochs: int = 100, batch_size: int = 32, *args, **kwargs):
 
         self.optimizer = tensorflow.keras.optimizers.Adam(learning_rate=lr)
         self.epochs = epochs
         self.name = 'LSTM'
         self.save_path = os.path.join('.', 'best_model.h5')
         self.history = None
+        self.batch_size = batch_size
 
         if pretrained_model is not None:
             if os.path.exists(pretrained_model):
@@ -89,12 +90,12 @@ class LSTM:
         if epochs is None:
             epochs = self.epochs
 
-        tr_generator = DataGeneratorRegression(x_train, y_train, batch_size=32, shuffle=True)
+        tr_generator = DataGeneratorRegression(x_train, y_train, batch_size=self.batch_size, shuffle=True)
 
         if x_val is not None:
             early_stopping = EarlyStopping(monitor='val_loss', mode='min', verbose=1, patience=early_stopping_patience)
             checkpointer = ModelCheckpoint(filepath=self.save_path, verbose=0, save_best_only=True)
-            val_generator = DataGeneratorRegression(x_val, y_val, batch_size=32, shuffle=False)
+            val_generator = DataGeneratorRegression(x_val, y_val, batch_size=self.batch_size, shuffle=False)
 
             # Train model
             self.history = self.model.fit(tr_generator, validation_data=val_generator, use_multiprocessing=True,
