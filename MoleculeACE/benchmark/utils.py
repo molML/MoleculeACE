@@ -221,7 +221,17 @@ def calc_rmse(true, pred):
 def calc_cliff_rmse(y_test_pred: Union[List[float], np.array], y_test: Union[List[float], np.array],
                     cliff_mols_test: List[int] = None, smiles_test: List[str] = None,
                     y_train: Union[List[float], np.array] = None, smiles_train: List[str] = None, **kwargs):
-    """ Calculate the RMSE of activity cliff compounds """
+    """ Calculate the RMSE of activity cliff compounds
+
+    :param y_test_pred: (lst/array) predicted test values
+    :param y_test: (lst/array) true test values
+    :param cliff_mols_test: (lst) binary list denoting if a molecule is an activity cliff compound
+    :param smiles_test: (lst) list of SMILES strings of the test molecules
+    :param y_train: (lst/array) train labels
+    :param smiles_train: (lst) list of SMILES strings of the train molecules
+    :param kwargs: arguments for ActivityCliffs()
+    :return: float RMSE on activity cliff compounds
+    """
 
     # Check if we can compute activity cliffs when pre-computed ones are not provided.
     if cliff_mols_test is None:
