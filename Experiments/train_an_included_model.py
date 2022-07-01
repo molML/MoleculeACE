@@ -25,7 +25,7 @@ def main():
     # Get the best hyperparameters from a config file (all datasets+models have already been optimized)
     hyperparameters = get_benchmark_config(dataset, descriptor, algorithm)
 
-    # Train and a model
+    # Train a model
     model = algorithm(**hyperparameters)
     model.train(data.x_train, data.y_train)
     y_hat = model.predict(data.x_test)
