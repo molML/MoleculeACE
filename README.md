@@ -65,16 +65,23 @@ pip install rdkit-pypi pandas numpy pandas chembl_webresource_client scikit-lear
 #### Train an out-of-the-box model on one of the many included datasets
 
 ```python
-from MoleculeACE import MPNN, Data, Descriptors, calc_rmse, calc_cliff_rmse
+from MoleculeACE import MPNN, Data, Descriptors, calc_rmse, calc_cliff_rmse, get_benchmark_config
+
+dataset = 'CHEMBL2034_Ki'
+descriptor = Descriptors.GRAPH
+algorithm = MPNN
 
 # Load data
-data = Data('CHEMBL2034_Ki')
+data = Data(dataset)
+
+# Get the already optimized hyperparameters
+hyperparameters = get_benchmark_config(dataset, descriptor, algorithm)
 
 # Featurize SMILES strings with a specific method
-data(Descriptors.GRAPH)
+data(descriptor)
 
-# Train and a model, if config_file = None, hyperparameter optimization is performed
-model = MPNN()
+# Train and a model
+model = algorithm(hyperparameters)
 model.train(data.x_train, data.y_train)
 y_hat = model.predict(data.x_test)
 
@@ -82,7 +89,8 @@ y_hat = model.predict(data.x_test)
 rmse = calc_rmse(data.y_test, y_hat)
 rmse_cliff = calc_cliff_rmse(y_test_pred=y_hat, y_test=data.y_test, cliff_mols_test=data.cliff_mols_test)
 
-print(f"rmse: {rmse}\nrmse_cliff: {rmse_cliff}")
+print(f"rmse: {rmse}")
+print(f"rmse_cliff: {rmse_cliff}")
 ```
 
 ## How to cite
