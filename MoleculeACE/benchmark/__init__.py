@@ -3,5 +3,5 @@ CONFIG_PATH_RF, CONFIG_PATH_SVM, CONFIG_PATH_GBM, CONFIG_PATH_KNN, CONFIG_PATH_M
 CONFIG_PATH_GCN, CONFIG_PATH_GIN, CONFIG_PATH_GNN, CONFIG_PATH_AFP, CONFIG_PATH_GAT, CONFIG_PATH_MPNN
 
 from benchmark.cliffs import ActivityCliffs
-from benchmark.utils import Data, calc_rmse, calc_cliff_rmse, get_config, write_config
+from benchmark.utils import Data, calc_rmse, calc_cliff_rmse, get_config, write_config, get_benchmark_config
 from benchmark.featurization import Featurizer
