@@ -20,7 +20,7 @@ A collection of random functions that are used in different places
 """
 
 from MoleculeACE.benchmark.cliffs import ActivityCliffs
-from MoleculeACE.benchmark.const import Descriptors, datasets, DATA_PATH, RANDOM_SEED, CONFIG_PATH_SMILES
+from MoleculeACE.benchmark.const import Descriptors, datasets, DATA_PATH, RANDOM_SEED, CONFIG_PATH_SMILES, CONFIG_PATH
 from transformers.tokenization_utils_base import BatchEncoding
 from sklearn.model_selection import StratifiedKFold
 from yaml import load, Loader, dump
@@ -145,6 +145,61 @@ def write_config(filename: str, args: dict):
         documents = dump(args, file)
 
 
+def get_benchmark_config(dataset: str, algorithm, descriptor):
+    """ Get the default configs
+
+    :param dataset: (str) one of the 30 datasets included in MoleculeACE
+    :param algorithm: (str) Algorithm class or name of one of the supported algorithms. Pick from:
+        ['RF', 'SVM', 'GBM', 'KNN', 'MLP', 'GCN', 'MPNN', 'AFP', 'GAT', 'CNN', 'LSTM', 'Transformer']
+    :param descriptor: (str) Descriptor class or name of one of the supported descriptors. Pick from:
+        ['ECFP', 'MACCS', 'PHYSCHEM', 'WHIM', 'GRAPH', 'SMILES', 'TOKENS']
+    :return: (dict) hyperparameters
+    """
+
+    from MoleculeACE.models import RF, SVM, GBM, KNN, MLP, GCN, MPNN, AFP, GAT, CNN, LSTM, Transformer
+    list_of_algos = [RF, SVM, GBM, KNN, MLP, GCN, MPNN, AFP, GAT, CNN, LSTM, Transformer]
+
+    # Dataset
+    if dataset not in datasets:
+        raise ValueError(f"Chosen dataset is not included, please pick from: {datasets}")
+
+    # Descriptor
+    if type(descriptor) is not str:
+        if not descriptor in [i for i in Descriptors]:
+            raise ValueError(
+                f"Chosen descriptor is not supported, please pick from: {[i.__str__() for i in Descriptors]}")
+        descriptor = descriptor.name
+    else:
+        if not descriptor in [i.name for i in Descriptors]:
+            raise ValueError(f"Chosen descriptor is not supported, please pick from: {[i.name for i in Descriptors]}")
+
+    # Algorithm
+    if type(algorithm) is not str:
+        if algorithm not in list_of_algos:
+            raise ValueError(f"Chosen algorithm is not supported, please pick from: {list_of_algos}")
+        algorithm = algorithm.__name__
+    else:
+        if algorithm not in [i.__name__ for i in list_of_algos]:
+            raise ValueError(
+                f"Chosen algorithm is not supported, please pick from: {[i.__name__ for i in list_of_algos]}")
+
+    combinations = {'ECFP': ['RF', 'SVM', 'GBM', 'KNN', 'MLP'],
+                    'MACCS': ['RF', 'SVM', 'GBM', 'KNN'],
+                    'PHYSCHEM': ['RF', 'SVM', 'GBM', 'KNN'],
+                    'WHIM': ['RF', 'SVM', 'GBM', 'KNN'],
+                    'GRAPH': ['GCN', 'MPNN', 'AFP', 'GAT'],
+                    'TOKENS': ['Transformer'],
+                    'SMILES': ['CNN', 'LSTM']}
+
+    if algorithm not in combinations[descriptor]:
+        raise ValueError(f'Given combination of descriptor and algorithm is not supported. Pick from: {combinations}')
+
+    config_path = os.path.join(CONFIG_PATH, 'benchmark', dataset, f"{algorithm}_{descriptor}.yml")
+    hyperparameters = get_config(config_path)
+
+    return hyperparameters
+
+
 def calc_rmse(true, pred):
     """ Calculates the Root Mean Square Error
 
@@ -234,9 +289,10 @@ def cross_validate(model, data, n_folds: int = 5, early_stopping: int = 10, seed
             x_tr_fold = {'input_ids': x_train['input_ids'][split['train_idx']],
                          'attention_mask': x_train['attention_mask'][split['train_idx']]}
             x_val_fold = {'input_ids': x_train['input_ids'][split['val_idx']],
-                         'attention_mask': x_train['attention_mask'][split['val_idx']]}
+                          'attention_mask': x_train['attention_mask'][split['val_idx']]}
         else:
-            x_tr_fold = [x_train[i] for i in split['train_idx']] if type(x_train) is list else x_train[split['train_idx']]
+            x_tr_fold = [x_train[i] for i in split['train_idx']] if type(x_train) is list else x_train[
+                split['train_idx']]
             x_val_fold = [x_train[i] for i in split['val_idx']] if type(x_train) is list else x_train[split['val_idx']]
 
         y_tr_fold = [y_train[i] for i in split['train_idx']] if type(y_train) is list else y_train[split['train_idx']]
@@ -288,10 +344,10 @@ def augment(smiles: List[str], *args, augment_factor: int = 10, max_smiles_len: 
         augmented_smiles.extend(generated)
 
         for a, arg in enumerate(args):
-            for _ in range(len(generated)+1):
+            for _ in range(len(generated) + 1):
                 augmented_args[a].append(arg[i])
 
-    return tuple([augmented_smiles],) + tuple(augmented_args)
+    return tuple([augmented_smiles], ) + tuple(augmented_args)
 
 
 def random_smiles(mol):
