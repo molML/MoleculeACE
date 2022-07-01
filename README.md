@@ -104,8 +104,10 @@ y_hat = model.predict(...)
 
 # Evaluate your model on activity cliff compounds
 rmse = calc_rmse(y_test, y_hat)
+# You need to provide both the predicted and true values of the test set + train labels + the train and test molecules
+# Activity cliffs are calculated on the fly
 rmse_cliff = calc_cliff_rmse(y_test_pred=y_hat, y_test=y_test, smiles_test=smiles_test, y_train=y_train, 
-                             smiles_train=smiles_train, in_log10=True)
+                             smiles_train=smiles_train, in_log10=True, similarity=0.9, potency_fold=10)
 
 print(f"rmse: {rmse}")
 print(f"rmse_cliff: {rmse_cliff}")
