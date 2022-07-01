@@ -93,6 +93,24 @@ print(f"rmse: {rmse}")
 print(f"rmse_cliff: {rmse_cliff}")
 ```
 
+#### Evaluate the performance of your own model
+
+```python
+from MoleculeACE import calc_rmse, calc_cliff_rmse
+
+# Train your own model
+model = ...
+y_hat = model.predict(...)
+
+# Evaluate your model on activity cliff compounds
+rmse = calc_rmse(y_test, y_hat)
+rmse_cliff = calc_cliff_rmse(y_test_pred=y_hat, y_test=y_test, smiles_test=smiles_test, y_train=y_train, 
+                             smiles_train=smiles_train, in_log10=True)
+
+print(f"rmse: {rmse}")
+print(f"rmse_cliff: {rmse_cliff}")
+```
+
 ## How to cite
 ***
 You can currently cite our [pre-print](https://chemrxiv.org/engage/chemrxiv/article-details/623de3fbab0051148698fbcf):
