@@ -1,0 +1,3 @@
+hidden: 256
+kernel_size: 10
+lr: 5.0e-05

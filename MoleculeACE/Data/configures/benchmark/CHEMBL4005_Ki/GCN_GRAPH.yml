@@ -1,0 +1,7 @@
+dropout: 0
+fc_hidden: 128
+lr: 5.0e-05
+n_conv_layers: 5
+n_fc_layers: 4
+node_hidden: 256
+transformer_hidden: 128

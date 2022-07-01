@@ -1,0 +1,5 @@
+dropout: 0
+hidden_channels: 128
+lr: 5.0e-05
+num_layers: 1
+num_timesteps: 5

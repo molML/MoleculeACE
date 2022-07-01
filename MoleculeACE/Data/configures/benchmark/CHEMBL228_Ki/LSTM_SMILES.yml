@@ -1,0 +1,4 @@
+lr: 0.0005
+hidden_0: 1024
+hidden_1: 256
+dropout: 0.4
