@@ -1,0 +1,6 @@
+#Hyperparameters for the ChemBerta Transformer regressor
+
+# N epochs with early stopping of Transformer models
+epochs: 100
+# starting learning rate
+lr: 0.00005
