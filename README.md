@@ -79,6 +79,7 @@ MoleculeACE currently supports Python 3.8. Some required deep learning packages 
 - [Tensorflow](https://www.tensorflow.org/) (2.9.0)
 - [PyTorch](https://pytorch.org/) (1.11.0)
 - [PyTorch Geometric](https://pytorch-geometric.readthedocs.io/en/latest/) (2.0.4)
+- [Transformers](https://huggingface.co/docs/transformers/installation) (4.20.1)
 
 <!-- Installation-->
 <h2 id="Installation">Installation</h2>
