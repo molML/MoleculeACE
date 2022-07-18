@@ -4,12 +4,10 @@ setup(
     name='MoleculeACE',
     version='2.0.0',
     packages=['MoleculeACE','MoleculeACE.benchmark',
-                                'MoleculeACE.data_fetching',
+                                'MoleculeACE.benchmark.data_fetching',
                             'MoleculeACE.models',
                             'MoleculeACE.Data',
                                 'MoleculeACE.Data.benchmark_data',
-                                    'MoleculeACE.Data.benchmark_data.metadata',
-                                    'MoleculeACE.Data.benchmark_data.raw',
                             'MoleculeACE.Data.configures',
                                 'MoleculeACE.Data.configures.benchmark',
                                     'MoleculeACE.Data.configures.benchmark.CHEMBL4203_Ki',
@@ -41,13 +39,8 @@ setup(
                                     'MoleculeACE.Data.configures.benchmark.CHEMBL235_EC50',
                                     'MoleculeACE.Data.configures.benchmark.CHEMBL4005_Ki',
                                     'MoleculeACE.Data.configures.benchmark.CHEMBL236_Ki',
-                                    'MoleculeACE.Data.configures.benchmark.CHEMBL228_Ki'
-                                'MoleculeACE.Data.default',
-                            'MoleculeACE.Data.results',
-                            'MoleculeACE.Data.fetched_data',
-                                'MoleculeACE.Data.fetched_data.data_curated',
-                                'MoleculeACE.Data.fetched_data.data_final',
-                                'MoleculeACE.Data.fetched_data.data_raw'
+                                    'MoleculeACE.Data.configures.benchmark.CHEMBL228_Ki',
+                                'MoleculeACE.Data.configures.default'
               ],
     url='https://github.com/molML/MoleculeACE',
     license='MIT',
@@ -66,7 +59,6 @@ setup(
             'matplotlib',
             'python-Levenshtein',
             'rdkit-pypi',
-            'transformers',
             'scikit-optimize'
         ],
     include_package_data=True,
