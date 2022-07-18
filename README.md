@@ -1,5 +1,4 @@
 ![MolDox logo](img/MoleculeACE.png?raw=true "Title")
-***
 
 ![repo version](https://img.shields.io/badge/Version-v.%202.0-green)
 ![python version](https://img.shields.io/badge/python-v.3.8-blue)
@@ -17,7 +16,6 @@ QSAR.
 <!-- TABLE OF CONTENTS -->
 <h2 id="table-of-contents"> :book: Table of Contents</h2>
 
-***
 
 <details open="open">
   <summary>Table of Contents</summary>
@@ -50,7 +48,6 @@ QSAR.
 <!-- Benchmark study-->
 <h2 id="benchmark-study">Benchmark study</h2>
 
-***
 
 In a benchmark study we collected and curated bioactivity data on 30 macromolecular targets, which were used to evaluate 
 the performance of many machine learning algorithms on activity cliffs. We used classical machine learning methods
@@ -66,7 +63,7 @@ predict.
 
 <!-- Tool-->
 <h2 id="Tool">Tool</h2>
-***
+
 
 Any regression model can be evaluated on activity cliff performance using MoleculeACE on third party data or the 30
 included molecular bioactivity data sets. All 24 machine learning strategies covered in our benchmark study can be used 
@@ -77,7 +74,7 @@ out of the box.
 
 <!-- Prerequisites-->
 <h2 id="Prerequisites">Prerequisites</h2>
-***
+
 MoleculeACE currently supports Python 3.8. Some required deep learning packages are not included in the pip install. 
 - [Tensorflow](https://www.tensorflow.org/) (2.9.0)
 - [PyTorch](https://pytorch.org/) (1.11.0)
@@ -85,7 +82,6 @@ MoleculeACE currently supports Python 3.8. Some required deep learning packages 
 
 <!-- Installation-->
 <h2 id="Installation">Installation</h2>
-***
 
 <h3 id="Pip-installation"> Pip installation</h3>
 MoleculeACE can be installed as
@@ -102,7 +98,6 @@ pip install rdkit-pypi pandas numpy pandas chembl_webresource_client scikit-lear
 
 <!-- Getting started-->
 <h2 id="Getting-started">Getting started</h2>
-***
 
 <h3 id="train-model"> Train an out-of-the-box model on one of the many included datasets</h3>
 
@@ -158,7 +153,6 @@ print(f"rmse_cliff: {rmse_cliff}")
 <!-- How to cite-->
 <h2 id="How-to-cite">How to cite</h2>
 
-***
 You can currently cite our [pre-print](https://chemrxiv.org/engage/chemrxiv/article-details/623de3fbab0051148698fbcf):
 
 van Tilborg *et al.* (2022). Exposing the limitations of molecular machine learning with activity cliffs. ChemRxiv.   
@@ -167,6 +161,5 @@ van Tilborg *et al.* (2022). Exposing the limitations of molecular machine learn
 <!-- License-->
 <h2 id="License">License</h2>
 
-***
 MoleculeACE is under MIT license. For use of specific models, please refer to the model licenses found in the original 
 packages.
