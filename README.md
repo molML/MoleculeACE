@@ -14,7 +14,42 @@ QSAR.
 3) Design guidelines to consider when developing novel QSAR approaches. 
 
 
-## Benchmark study
+<!-- TABLE OF CONTENTS -->
+<h2 id="table-of-contents"> :book: Table of Contents</h2>
+
+***
+
+<details open="open">
+  <summary>Table of Contents</summary>
+  <ol>
+    <li><a href="#Benchmark study"> ➤ Benchmark study</a></li>
+    <li><a href="#Tool"> ➤ Tool</a></li>
+    <li><a href="#Prerequisites"> ➤ Prerequisites</a></li>
+    <li>
+          <a href="Installation"> ➤ Installation</a>
+          <ul>
+            <li><a href="#Pip-installation">Pip installation</a></li>
+            <li><a href="#Manual-installation">Manual installation</a></li>
+          </ul>
+    </li>
+    <li>
+          <a href="#Getting-started"> ➤ Getting started</a>
+          <ul>
+            <li><a href="#train-model">Train an out-of-the-box model</a></li>
+            <li><a href="#eval-own-model">Evaluate your own model</a></li>
+          </ul>
+    </li>
+    <li><a href="#How-to-cite"> ➤ How to cite</a></li>
+    <li><a href="#License"> ➤ Licence</a></li>
+  </ol>
+</details>
+
+
+
+
+<!-- Benchmark study-->
+<h2 id="benchmark-study">Benchmark study</h2>
+
 ***
 
 In a benchmark study we collected and curated bioactivity data on 30 macromolecular targets, which were used to evaluate 
@@ -29,7 +64,8 @@ predict.
 ![Activity cliff example](img/cliff_example.png?raw=true "activity_cliff_example")
 *Example of an activity cliff on the Dopamine D3 receptor, D3R*
 
-## Tool
+<!-- Tool-->
+<h2 id="Tool">Tool</h2>
 ***
 
 Any regression model can be evaluated on activity cliff performance using MoleculeACE on third party data or the 30
@@ -39,30 +75,36 @@ out of the box.
 ![MolDox logo](img/moleculeACE_example.png?raw=true "activity_cliff_example")
 
 
-## Requirements
+<!-- Prerequisites-->
+<h2 id="Prerequisites">Prerequisites</h2>
 ***
 MoleculeACE currently supports Python 3.8. Some required deep learning packages are not included in the pip install. 
 - [Tensorflow](https://www.tensorflow.org/) (2.9.0)
 - [PyTorch](https://pytorch.org/) (1.11.0)
 - [PyTorch Geometric](https://pytorch-geometric.readthedocs.io/en/latest/) (2.0.4)
 
-## Installation
+<!-- Installation-->
+<h2 id="Installation">Installation</h2>
 ***
+
+<h3 id="Pip-installation"> Pip installation</h3>
 MoleculeACE can be installed as
 
 ```pip install MoleculeACE```
 
-### Manual installation
+<h3 id="Manual-installation"> Manual installation</h3>
+
 ```git clone https://github.com/derekvantilborg/MoleculeACE```
 
 ```
 pip install rdkit-pypi pandas numpy pandas chembl_webresource_client scikit-learn matplotlib tqdm python-Levenshtein
 ```
 
-### Getting started
+<!-- Getting started-->
+<h2 id="Getting-started">Getting started</h2>
 ***
 
-#### Train an out-of-the-box model on one of the many included datasets
+<h3 id="train-model"> Train an out-of-the-box model on one of the many included datasets</h3>
 
 ```python
 from MoleculeACE import MPNN, Data, Descriptors, calc_rmse, calc_cliff_rmse, get_benchmark_config
@@ -75,7 +117,7 @@ algorithm = MPNN
 data = Data(dataset)
 
 # Get the already optimized hyperparameters
-hyperparameters = get_benchmark_config(dataset, descriptor, algorithm)
+hyperparameters = get_benchmark_config(dataset, algorithm, descriptor)
 
 # Featurize SMILES strings with a specific method
 data(descriptor)
@@ -93,7 +135,7 @@ print(f"rmse: {rmse}")
 print(f"rmse_cliff: {rmse_cliff}")
 ```
 
-#### Evaluate the performance of your own model
+<h3 id="eval-own-model"> Evaluate the performance of your own model</h3>
 
 ```python
 from MoleculeACE import calc_rmse, calc_cliff_rmse
@@ -113,13 +155,18 @@ print(f"rmse: {rmse}")
 print(f"rmse_cliff: {rmse_cliff}")
 ```
 
-## How to cite
+<!-- How to cite-->
+<h2 id="How-to-cite">How to cite</h2>
+
 ***
 You can currently cite our [pre-print](https://chemrxiv.org/engage/chemrxiv/article-details/623de3fbab0051148698fbcf):
 
 van Tilborg *et al.* (2022). Exposing the limitations of molecular machine learning with activity cliffs. ChemRxiv.   
 
-## License
+
+<!-- License-->
+<h2 id="License">License</h2>
+
 ***
 MoleculeACE is under MIT license. For use of specific models, please refer to the model licenses found in the original 
 packages.
