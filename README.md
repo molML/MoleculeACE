@@ -24,7 +24,7 @@ QSAR.
     <li><a href="#Tool"> ➤ Tool</a></li>
     <li><a href="#Prerequisites"> ➤ Prerequisites</a></li>
     <li>
-          <a href="Installation"> ➤ Installation</a>
+          <a href="#Installation"> ➤ Installation</a>
           <ul>
             <li><a href="#Pip-installation">Pip installation</a></li>
             <li><a href="#Manual-installation">Manual installation</a></li>
