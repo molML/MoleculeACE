@@ -119,7 +119,7 @@ hyperparameters = get_benchmark_config(dataset, algorithm, descriptor)
 data(descriptor)
 
 # Train and a model
-model = algorithm(hyperparameters)
+model = algorithm(**hyperparameters)
 model.train(data.x_train, data.y_train)
 y_hat = model.predict(data.x_test)
 
