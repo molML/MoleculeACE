@@ -155,6 +155,7 @@ print(f"rmse_cliff: {rmse_cliff}")
 <h2 id="How-to-cite">How to cite</h2>
 
 Exposing the Limitations of Molecular Machine Learning with Activity Cliffs
+
 Derek van Tilborg, Alisa Alenicheva, and Francesca Grisoni
 Journal of Chemical Information and Modeling 2022 62 (23), 5938-5951
 DOI: 10.1021/acs.jcim.2c01073   
