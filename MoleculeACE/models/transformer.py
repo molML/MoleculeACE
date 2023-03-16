@@ -142,6 +142,7 @@ class Transformer:
                 if val_loss <= min(self.val_losses):
                     with open(self.save_path, 'wb') as handle:
                         pickle.dump(self.model, handle, protocol=pickle.HIGHEST_PROTOCOL)
+                    patience = 0
                 else:
                     patience += 1
 
