@@ -165,7 +165,7 @@ def get_benchmark_config(dataset: str, algorithm, descriptor):
 
     # Descriptor
     if type(descriptor) is not str:
-        if not descriptor in [i for i in Descriptors]:
+        if not descriptor.name in [i.name for i in Descriptors]:
             raise ValueError(
                 f"Chosen descriptor is not supported, please pick from: {[i.__str__() for i in Descriptors]}")
         descriptor = descriptor.name
@@ -327,6 +327,7 @@ def cross_validate(model, data, n_folds: int = 5, early_stopping: int = 10, seed
         rmse_scores.append(rmse)
         cliff_rmse_scores.append(rmse_cliff)
 
+        del f.model
         del f
         torch.cuda.empty_cache()
         tf.keras.backend.clear_session()
