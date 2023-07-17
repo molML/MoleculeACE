@@ -82,7 +82,7 @@ def split_data(smiles: List[str], bioactivity: List[float], in_log10: bool = Fal
             raise ValueError(f"Can't find molecule {i} in train or test")
 
     return pd.DataFrame({'smiles': smiles,
-                         'exp_mean [nM]': (10**abs(np.array(bioactivity))).tolist(),
+                         'exp_mean [nM]': (10**(np.array(bioactivity)*-1)).tolist(),
                          'y': bioactivity,
                          'cliff_mol': cliff_mols,
                          'split': train_test})
