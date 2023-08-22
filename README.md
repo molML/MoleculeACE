@@ -91,7 +91,7 @@ MoleculeACE can be installed as
 
 <h3 id="Manual-installation"> Manual installation</h3>
 
-```git clone https://github.com/derekvantilborg/MoleculeACE```
+```git clone https://github.com/molML/MoleculeACE.git```
 
 ```
 pip install rdkit-pypi pandas numpy pandas chembl_webresource_client scikit-learn matplotlib tqdm python-Levenshtein
