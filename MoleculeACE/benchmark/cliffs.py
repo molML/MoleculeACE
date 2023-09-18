@@ -35,13 +35,12 @@ class ActivityCliffs:
         self.bioactivity = list(bioactivity) if type(bioactivity) is not list else bioactivity
         self.cliffs = None
 
-    def find_cliffs(self, similarity: float = 0.9, potency_fold: float = 10, in_log10: bool = True,
-                    custom_cliff_function: Callable = None, mmp: bool = False):
+    def find_cliffs(self, similarity: float = 0.9, potency_fold: float = 10, mmp: bool = False,
+                    custom_cliff_function: Callable = None):
         """ Compute activity cliffs
 
         :param similarity: (float) threshold value to determine structural similarity
         :param potency_fold: (float) threshold value to determine difference in bioactivity
-        :param in_log10: (bool) is you bioactivty in log10 nM?
         :param custom_cliff_function: (Callable) function that takes: smiles: List[str] and similarity: float and
           returns a square binary matrix where 1 is similar and 0 is not.
         :param mmp: (bool) use matched molecular pairs to determine similarity instead
@@ -56,7 +55,7 @@ class ActivityCliffs:
             custom_sim = custom_cliff_function(self.smiles, similarity)
             sim = np.logical_or(sim == 1, custom_sim == 1).astype(int)
 
-        fc = (get_fc(self.bioactivity, in_log10=in_log10) > potency_fold).astype(int)
+        fc = (get_fc(self.bioactivity) > potency_fold).astype(int)
 
         self.cliffs = np.logical_and(sim == 1, fc == 1).astype(int)
 
@@ -89,8 +88,6 @@ def find_fc(a: float, b: float):
 
 def get_fc(bioactivity: List[float], in_log10: bool = True):
     """ Calculates the pairwise fold difference in compound activity given a list of activities"""
-
-    bioactivity = 10 ** abs(np.array(bioactivity)) if in_log10 else bioactivity
 
     act_len = len(bioactivity)
     m = np.zeros([act_len, act_len])
