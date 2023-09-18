@@ -28,6 +28,7 @@ from tensorflow.keras.models import Sequential, load_model
 from tensorflow.keras.callbacks import EarlyStopping, ModelCheckpoint
 from tensorflow.keras.utils import Sequence
 import tensorflow.keras.optimizers
+from MoleculeACE.benchmark.featurization import OneHotEncodeSMILES
 import numpy as np
 import os
 import warnings
@@ -39,13 +40,13 @@ smiles_encoding = get_config(CONFIG_PATH_SMILES)
 
 class LSTM:
     def __init__(self, pretrained_model: str = os.path.join(WORKING_DIR, "pretrained_models", "pretrained_lstm.h5"),
-                 nchar_in: int = 41, hidden_0: int = 1024, hidden_1: int = 256,
+                 nchar_in: int = 41, hidden_0: int = 1024, hidden_1: int = 256, best_model_save_path: str = os.path.join('.', 'best_model.h5'),
                  dropout: float = 0.4, lr: float = 0.0005, epochs: int = 100, batch_size: int = 32, *args, **kwargs):
 
         self.optimizer = tensorflow.keras.optimizers.Adam(learning_rate=lr)
         self.epochs = epochs
         self.name = 'LSTM'
-        self.save_path = os.path.join('.', 'best_model.h5')
+        self.save_path = best_model_save_path
         self.history = None
         self.batch_size = batch_size
 
@@ -100,10 +101,10 @@ class LSTM:
             # Train model
             self.history = self.model.fit(tr_generator, validation_data=val_generator, use_multiprocessing=True,
                                           epochs=epochs, callbacks=[checkpointer, early_stopping],
-                                          workers=4, verbose=1)
+                                          workers=1, verbose=1)
         else:
             # Train model
-            self.history = self.model.fit(tr_generator, use_multiprocessing=True, epochs=epochs, workers=4, verbose=1)
+            self.history = self.model.fit(tr_generator, use_multiprocessing=True, epochs=epochs, workers=1, verbose=1)
 
     def test(self, x_test, y_test, batch_size: int = 32):
         y_hat = self.predict(x_test, batch_size)
@@ -171,7 +172,7 @@ class LSTMNextToken:
                                       use_multiprocessing=True,
                                       epochs=epochs,
                                       callbacks=[checkpointer, early_stopping],
-                                      workers=4, verbose=1)
+                                      workers=1, verbose=1)
 
     def test(self, x_test, batch_size: int = 32):
 
@@ -200,15 +201,16 @@ class LSTMNextToken:
 class DataGeneratorNextToken(Sequence):
     """Generates one-hot encoded smiles + next token data for Keras"""
 
-    def __init__(self, encoded_smiles, batch_size: int = 32, max_len_model: int = smiles_encoding['max_smiles_len'] + 2,
+    def __init__(self, smiles, batch_size: int = 32, max_len_model: int = smiles_encoding['max_smiles_len'] + 2,
                  n_chars: int = smiles_encoding['vocab_size'], indices_token: dict = smiles_encoding['indices_token'],
                  token_indices: dict = smiles_encoding['token_indices'], shuffle: bool = True):
         """Initialization"""
         self.max_len_model = max_len_model
         self.batch_size = batch_size
-        self.encoded_smiles = encoded_smiles
+        self.smiles = smiles
         self.shuffle = shuffle
         self.n_chars = n_chars
+        self.onehotfeaturizer = OneHotEncodeSMILES()
 
         self.on_epoch_end()
 
@@ -217,7 +219,7 @@ class DataGeneratorNextToken(Sequence):
 
     def __len__(self):
         """Denotes the number of batches per epoch"""
-        return int(np.floor(len(self.encoded_smiles) / self.batch_size))
+        return int(np.floor(len(self.smiles) / self.batch_size))
 
     def __getitem__(self, index):
         """Generate one batch of data"""
@@ -231,7 +233,7 @@ class DataGeneratorNextToken(Sequence):
 
     def on_epoch_end(self):
         """Updates indexes after each epoch"""
-        self.indexes = np.arange(len(self.encoded_smiles))
+        self.indexes = np.arange(len(self.smiles))
         if self.shuffle:
             np.random.shuffle(self.indexes)
 
@@ -244,7 +246,7 @@ class DataGeneratorNextToken(Sequence):
 
         # Generate data
         for i, ID in enumerate(list_ids_temp):
-            smi = self.encoded_smiles[ID]
+            smi = self.onehotfeaturizer(self.smiles[ID])
             x[i] = smi[:-1]
             y[i] = smi[1:]
 
