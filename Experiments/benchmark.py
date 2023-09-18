@@ -5,6 +5,11 @@ Script to replicate the benchmark results
 
 """
 
+import tensorflow as tf
+
+physical_devices = tf.config.list_physical_devices('GPU')
+tf.config.experimental.set_memory_growth(physical_devices[0], enable=True)
+
 from MoleculeACE.models import RF, SVM, GBM, KNN, MLP, GCN, MPNN, AFP, GAT, CNN, LSTM, Transformer
 from MoleculeACE.benchmark.const import Descriptors, CONFIG_PATH, datasets, WORKING_DIR, RANDOM_SEED
 from MoleculeACE.benchmark.utils import Data, get_config, calc_rmse, calc_cliff_rmse, cross_validate
@@ -62,6 +67,7 @@ def main(results_filename: str = "MoleculeACE_results.csv"):
                     combi = f"{algo.__name__}_{descriptor.name}"
                     config_path = os.path.join(CONFIG_PATH, 'benchmark', dataset, f"{combi}.yml")
                     model_save_path = os.path.join(WORKING_DIR, 'pretrained_models', dataset, f"{combi}.pkl")
+                    model_save_path = model_save_path.replace('.pkl', '.h5') if algo is LSTM else model_save_path
 
                     try:
 
