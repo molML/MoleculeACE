@@ -22,11 +22,18 @@ def main():
 
         df_raw = pd.read_csv(f"MoleculeACE/Data/benchmark_data/raw/{file}")
         df_raw = df_raw.dropna()
+
+        se_idx = [i for i, smi in enumerate(df_raw.smiles) if '[Se]' in smi]
+        df_raw = df_raw.drop(index=se_idx)
+
+        te_idx = [i for i, smi in enumerate(df_raw.smiles) if '[te]' in smi]
+        df_raw = df_raw.drop(index=te_idx)
+
         raw_smiles = df_raw['smiles'].tolist()
         raw_bioactivity = df_raw['exp_mean [nM]'].tolist()
 
-        df = split_data(raw_smiles, raw_bioactivity, in_log10=False, n_clusters=5, test_size=TEST_SIZE,
-                        similarity=SIMILARITY, potency_fold=POTENCY_FOLD, remove_stereo=True)
+        df = split_data(raw_smiles, raw_bioactivity, n_clusters=5, test_size=TEST_SIZE, similarity=SIMILARITY,
+                        potency_fold=POTENCY_FOLD, remove_stereo=True)
 
         df.to_csv(f"MoleculeACE/Data/benchmark_data/{file}", index=False)
 
