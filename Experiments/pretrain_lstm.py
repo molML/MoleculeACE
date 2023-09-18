@@ -6,6 +6,10 @@ and 10% validation data. The weights of this model are later used to initialize 
 
 """
 
+import tensorflow as tf
+physical_devices = tf.config.list_physical_devices('GPU')
+tf.config.experimental.set_memory_growth(physical_devices[0], enable=True)
+
 from MoleculeACE.benchmark.const import datasets, DATA_PATH, WORKING_DIR, CONFIG_PATH_SMILES, RANDOM_SEED
 from MoleculeACE.benchmark.cliffs import get_tanimoto_matrix
 from MoleculeACE.benchmark.utils import augment, get_config
@@ -70,20 +74,15 @@ def main():
     train_smiles = augment(train_smiles, augment_factor=AUGMENT)[0]
     val_smiles = augment(val_smiles, augment_factor=AUGMENT)[0]
 
-    # One-hot encode all SMILES
-    x_train = Featurizer().one_hot(train_smiles)
-    x_val = Featurizer().one_hot(val_smiles)
-    x_test = Featurizer().one_hot(test_smiles)
-
     # Train autoregressive LSTM
     model = LSTMNextToken()
-    model.train(x_train, x_val, epochs=EPOCHS, early_stopping_patience=10)
+    model.train(train_smiles, val_smiles, epochs=EPOCHS, early_stopping_patience=10)
 
     # Save model
     model.model.save(SAVE_PATH)
 
     # Test model
-    y_hat, y_true = model.test(x_test)
+    y_hat, y_true = model.test(test_smiles)
 
     # Don't calculate the accuracy of predicting the padding character. This highly inflates the accuracy.
     pad_char_idx = smiles_encoding['token_indices'][smiles_encoding['pad_char']]
