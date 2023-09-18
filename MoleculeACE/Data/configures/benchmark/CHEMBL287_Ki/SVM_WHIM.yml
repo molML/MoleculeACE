@@ -1,4 +1,4 @@
-C: 10000
+C: 10
 epsilon: 0.1
-gamma: 1.0e-06
+gamma: 0.001
 kernel: rbf

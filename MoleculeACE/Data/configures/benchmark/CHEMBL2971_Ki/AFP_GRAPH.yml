@@ -1,5 +1,6 @@
 dropout: 0
-hidden_channels: 256
+epochs: 137
+hidden_channels: 64
 lr: 0.0005
-num_layers: 1
-num_timesteps: 3
+num_layers: 3
+num_timesteps: 1

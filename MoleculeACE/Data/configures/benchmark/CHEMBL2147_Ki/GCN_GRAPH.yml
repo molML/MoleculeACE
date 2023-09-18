@@ -1,7 +1,8 @@
-dropout: 0.0
-fc_hidden: 512
-lr: 5.0e-06
-n_conv_layers: 2
-n_fc_layers: 1
-node_hidden: 64
-transformer_hidden: 256
+dropout: 0
+epochs: 223
+fc_hidden: 128
+lr: 5.0e-05
+n_conv_layers: 4
+n_fc_layers: 4
+node_hidden: 512
+transformer_hidden: 128

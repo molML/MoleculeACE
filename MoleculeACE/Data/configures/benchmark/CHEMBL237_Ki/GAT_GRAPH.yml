@@ -1,9 +1,9 @@
 dropout: 0
-epochs: 100
+epochs: 223
 fc_hidden: 128
-gatv2: false
+gatv2: true
 lr: 5.0e-05
-n_fc_layers: 1
-n_gat_layers: 4
-node_hidden: 128
-transformer_hidden: 128
+n_fc_layers: 3
+n_gat_layers: 2
+node_hidden: 256
+transformer_hidden: 64

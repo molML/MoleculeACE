@@ -1,3 +1,4 @@
-hidden: 512
+epochs: 388
+hidden: 256
 kernel_size: 4
 lr: 5.0e-06

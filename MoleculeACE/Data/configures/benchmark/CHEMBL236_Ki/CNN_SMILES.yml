@@ -1,3 +1,4 @@
-hidden: 1024
-kernel_size: 8
-lr: 5.0e-06 
+epochs: 4
+hidden: 512
+kernel_size: 4
+lr: 0.0005

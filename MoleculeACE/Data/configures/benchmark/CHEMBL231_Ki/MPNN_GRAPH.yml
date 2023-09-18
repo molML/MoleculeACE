@@ -1,8 +1,9 @@
-dropout: 0.0
-edge_hidden: 32
-fc_hidden: 128
+dropout: 0
+edge_hidden: 256
+epochs: 98
+fc_hidden: 512
 lr: 5.0e-05
-message_steps: 4
-n_fc_layers: 1
+message_steps: 5
+n_fc_layers: 3
 node_hidden: 64
-transformer_hidden: 128
+transformer_hidden: 64

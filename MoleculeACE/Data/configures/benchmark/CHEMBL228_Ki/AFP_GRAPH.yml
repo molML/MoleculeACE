@@ -1,4 +1,5 @@
 dropout: 0
+epochs: 70
 hidden_channels: 256
 lr: 0.0005
 num_layers: 2
