@@ -81,12 +81,12 @@ class ActivityCliffs:
 
 
 def find_fc(a: float, b: float):
-    """Get the fold change of to bioactivities (deconvert from log10 if needed)"""
+    """Get the fold change of to bioactivities"""
 
     return max([a, b]) / min([a, b])
 
 
-def get_fc(bioactivity: List[float], in_log10: bool = True):
+def get_fc(bioactivity: List[float]):
     """ Calculates the pairwise fold difference in compound activity given a list of activities"""
 
     act_len = len(bioactivity)
@@ -104,14 +104,14 @@ def get_fc(bioactivity: List[float], in_log10: bool = True):
     return m
 
 
-def get_levenshtein_matrix(smiles: List[str], normalize: bool = True):
+def get_levenshtein_matrix(smiles: List[str], normalize: bool = True, hide: bool = False):
     """ Calculates a matrix of levenshtein similarity scores for a list of SMILES string"""
 
     smi_len = len(smiles)
 
     m = np.zeros([smi_len, smi_len])
     # Calculate upper triangle of matrix
-    for i in tqdm(range(smi_len)):
+    for i in tqdm(range(smi_len), disable=hide):
         for j in range(i, smi_len):
             if normalize:
                 m[i, j] = levenshtein(smiles[i], smiles[j]) / max(len(smiles[i]), len(smiles[j]))
@@ -129,7 +129,7 @@ def get_levenshtein_matrix(smiles: List[str], normalize: bool = True):
     return m
 
 
-def get_tanimoto_matrix(smiles: List[str], radius: int = 2, nBits: int = 1024):
+def get_tanimoto_matrix(smiles: List[str], radius: int = 2, nBits: int = 1024, hide: bool = False):
     """ Calculates a matrix of Tanimoto similarity scores for a list of SMILES string"""
 
     # Make a fingerprint database
@@ -142,7 +142,7 @@ def get_tanimoto_matrix(smiles: List[str], radius: int = 2, nBits: int = 1024):
     smi_len = len(smiles)
     m = np.zeros([smi_len, smi_len])
     # Calculate upper triangle of matrix
-    for i in tqdm(range(smi_len)):
+    for i in tqdm(range(smi_len), disable=hide):
         for j in range(i, smi_len):
             m[i, j] = DataStructs.TanimotoSimilarity(db_fp[smiles[i]],
                                                      db_fp[smiles[j]])
@@ -154,7 +154,7 @@ def get_tanimoto_matrix(smiles: List[str], radius: int = 2, nBits: int = 1024):
     return m
 
 
-def get_scaffold_matrix(smiles: List[str], radius: int = 2, nBits: int = 1024):
+def get_scaffold_matrix(smiles: List[str], radius: int = 2, nBits: int = 1024, hide: bool = False):
     """ Calculates a matrix of Tanimoto similarity scores for a list of SMILES string """
 
     # Make scaffold database
@@ -172,7 +172,7 @@ def get_scaffold_matrix(smiles: List[str], radius: int = 2, nBits: int = 1024):
     smi_len = len(smiles)
     m = np.zeros([smi_len, smi_len])
     # Calculate upper triangle of matrix
-    for i in tqdm(range(smi_len)):
+    for i in tqdm(range(smi_len), disable=hide):
         for j in range(i, smi_len):
             m[i, j] = DataStructs.TanimotoSimilarity(db_scaf[smiles[i]],
                                                      db_scaf[smiles[j]])
@@ -228,7 +228,7 @@ def mmp_match(smiles: str, fragments: List):
     return 0
 
 
-def get_mmp_matrix(smiles: List[str]):
+def get_mmp_matrix(smiles: List[str], hide: bool = False):
     """ Calculates a matrix of matched molecular pairs for a list of SMILES string"""
 
     # Make a fingerprint database
@@ -237,7 +237,7 @@ def get_mmp_matrix(smiles: List[str]):
     smi_len = len(smiles)
     m = np.zeros([smi_len, smi_len])
     # Calculate upper triangle of matrix.
-    for i in tqdm(range(smi_len)):
+    for i in tqdm(range(smi_len), disable=hide):
         for j in range(i, smi_len):
             m[i, j] = mmp_match(smiles[i], db_frags[smiles[j]])
 
@@ -256,11 +256,19 @@ def mmp_similarity(smiles: List[str], similarity=None):
     return (get_mmp_matrix(smiles) > 0).astype(int)
 
 
-def moleculeace_similarity(smiles: List[str], similarity: float = 0.9):
+def moleculeace_similarity(smiles: List[str], similarity: float = 0.9, hide: bool = False):
     """ Calculate which pairs of molecules have a high tanimoto, scaffold, or SMILES similarity """
 
-    m_tani = get_tanimoto_matrix(smiles) >= similarity
-    m_scaff = get_scaffold_matrix(smiles) >= similarity
-    m_leve = get_levenshtein_matrix(smiles) >= similarity
+    m_tani = get_tanimoto_matrix(smiles, hide=hide) >= similarity
+    m_scaff = get_scaffold_matrix(smiles, hide=hide) >= similarity
+    m_leve = get_levenshtein_matrix(smiles, hide=hide) >= similarity
 
     return (m_tani + m_scaff + m_leve).astype(int)
+
+
+def is_cliff(smiles1, smiles2, y1, y2, similarity: float = 0.9, potency_fold: float = 10):
+    """ Calculates if two molecules are activity cliffs """
+    sim = moleculeace_similarity([smiles1, smiles2], similarity=similarity, hide=True)[0][1]
+    fc = get_fc([y1, y2])[0][1]
+
+    return sim == 1 and fc >= potency_fold
