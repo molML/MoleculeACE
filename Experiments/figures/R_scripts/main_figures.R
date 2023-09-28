@@ -133,7 +133,7 @@ figure4 = function(df){
   
   # Select the DL methods + a good and bad classical method
   df = rbind(subset(df, algorithm %in% c('GCN', 'MPNN', 'AFP', "GAT", 'MLP', 'Transformer')),
-                       # subset(df, algorithm == 'SVM' & descriptor == 'ECFP'),
+                       subset(df, algorithm == 'SVM' & descriptor == 'ECFP'),
                        subset(df, algorithm == 'LSTM' & augmentation == 10),
                        subset(df, algorithm == 'CNN' & augmentation == 10))
   
