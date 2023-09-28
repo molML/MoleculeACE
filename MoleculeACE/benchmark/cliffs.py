@@ -104,14 +104,14 @@ def get_fc(bioactivity: List[float]):
     return m
 
 
-def get_levenshtein_matrix(smiles: List[str], normalize: bool = True, hide: bool = False):
+def get_levenshtein_matrix(smiles: List[str], normalize: bool = True, hide: bool = False, top_n: int = None):
     """ Calculates a matrix of levenshtein similarity scores for a list of SMILES string"""
 
     smi_len = len(smiles)
 
     m = np.zeros([smi_len, smi_len])
     # Calculate upper triangle of matrix
-    for i in tqdm(range(smi_len), disable=hide):
+    for i in tqdm(range(smi_len if top_n is None else top_n), disable=hide):
         for j in range(i, smi_len):
             if normalize:
                 m[i, j] = levenshtein(smiles[i], smiles[j]) / max(len(smiles[i]), len(smiles[j]))
@@ -129,7 +129,7 @@ def get_levenshtein_matrix(smiles: List[str], normalize: bool = True, hide: bool
     return m
 
 
-def get_tanimoto_matrix(smiles: List[str], radius: int = 2, nBits: int = 1024, hide: bool = False):
+def get_tanimoto_matrix(smiles: List[str], radius: int = 2, nBits: int = 1024, hide: bool = False, top_n: int = None):
     """ Calculates a matrix of Tanimoto similarity scores for a list of SMILES string"""
 
     # Make a fingerprint database
@@ -142,7 +142,7 @@ def get_tanimoto_matrix(smiles: List[str], radius: int = 2, nBits: int = 1024, h
     smi_len = len(smiles)
     m = np.zeros([smi_len, smi_len])
     # Calculate upper triangle of matrix
-    for i in tqdm(range(smi_len), disable=hide):
+    for i in tqdm(range(smi_len if top_n is None else top_n), disable=hide):
         for j in range(i, smi_len):
             m[i, j] = DataStructs.TanimotoSimilarity(db_fp[smiles[i]],
                                                      db_fp[smiles[j]])
@@ -154,7 +154,7 @@ def get_tanimoto_matrix(smiles: List[str], radius: int = 2, nBits: int = 1024, h
     return m
 
 
-def get_scaffold_matrix(smiles: List[str], radius: int = 2, nBits: int = 1024, hide: bool = False):
+def get_scaffold_matrix(smiles: List[str], radius: int = 2, nBits: int = 1024, hide: bool = False, top_n: int = None):
     """ Calculates a matrix of Tanimoto similarity scores for a list of SMILES string """
 
     # Make scaffold database
@@ -172,7 +172,7 @@ def get_scaffold_matrix(smiles: List[str], radius: int = 2, nBits: int = 1024, h
     smi_len = len(smiles)
     m = np.zeros([smi_len, smi_len])
     # Calculate upper triangle of matrix
-    for i in tqdm(range(smi_len), disable=hide):
+    for i in tqdm(range(smi_len if top_n is None else top_n), disable=hide):
         for j in range(i, smi_len):
             m[i, j] = DataStructs.TanimotoSimilarity(db_scaf[smiles[i]],
                                                      db_scaf[smiles[j]])
