@@ -1,6 +1,6 @@
 ![MolDox logo](img/MoleculeACE.png?raw=true "Title")
 
-![repo version](https://img.shields.io/badge/Version-v.%203.0-green)
+![repo version](https://img.shields.io/badge/Version-v.%203.0.0-green)
 ![python version](https://img.shields.io/badge/python-v.3.8-blue)
 ![license](https://img.shields.io/badge/license-MIT-orange)
 
