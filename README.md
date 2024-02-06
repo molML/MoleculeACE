@@ -88,7 +88,6 @@ MoleculeACE currently supports Python 3.8. Some required deep learning packages 
 MoleculeACE can be installed as
 
 ```pip install MoleculeACE```
-The package has not been updated to the latest version of MoleculeACE yet
 
 <h3 id="Manual-installation"> Manual installation</h3>
 
