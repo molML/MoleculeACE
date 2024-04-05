@@ -1,8 +1,9 @@
 ![MolDox logo](img/MoleculeACE.png?raw=true "Title")
 
-![repo version](https://img.shields.io/badge/Version-v.%203.0.0-green)
+![repo version](https://img.shields.io/badge/Version-v.%203.0.1-green)
 ![python version](https://img.shields.io/badge/python-v.3.8-blue)
 ![license](https://img.shields.io/badge/license-MIT-orange)
+[![Static Badge](https://img.shields.io/badge/Paper-10.1021/acs.jcim.2c01073-sqb5c)](https://doi.org/10.1021/acs.jcim.2c01073)
 
 Molecule Activity Cliff Estimation (**MoleculeACE**) is a tool for evaluating the predictive performance on activity cliff compounds of machine learning models. 
 
@@ -11,6 +12,11 @@ MoleculeACE can be used to:
 QSAR.
 2) Identify best practices to enhance a model’s predictivity in the presence of activity cliffs.
 3) Design guidelines to consider when developing novel QSAR approaches. 
+
+
+<h3> Update: </h3> 
+
+**Upon request, we added an extra column to the datasets containing pEC50 and pKi values calculated from Molar concentrations alongside the original training labels used in the study that used log-transformed nM concentrations.**
 
 
 <!-- TABLE OF CONTENTS -->
