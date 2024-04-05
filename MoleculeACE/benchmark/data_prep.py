@@ -47,6 +47,7 @@ def split_data(smiles: List[str], bioactivity: List[float], n_clusters: int = 5,
     check_matching(original_smiles, original_bioactivity, smiles, bioactivity)
 
     y_log = -np.log10(bioactivity)
+    y_log_molar = -np.log10(bioactivity * 1e-9)
 
     cliffs = ActivityCliffs(smiles, bioactivity)
     cliff_mols = cliffs.get_cliff_molecules(return_smiles=False, similarity=similarity, potency_fold=potency_fold)
@@ -94,6 +95,7 @@ def split_data(smiles: List[str], bioactivity: List[float], n_clusters: int = 5,
     df_out = pd.DataFrame({'smiles': smiles,
                          'exp_mean [nM]': bioactivity,
                          'y': y_log,
+                         'y [pEC50/pKi]': y_log_molar,
                          'cliff_mol': cliff_mols,
                          'split': train_test})
 

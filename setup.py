@@ -2,7 +2,7 @@ from setuptools import setup
 
 setup(
     name='MoleculeACE',
-    version='2.0.1',
+    version='3.0.0',
     packages=['MoleculeACE','MoleculeACE.benchmark',
                                 'MoleculeACE.benchmark.data_fetching',
                             'MoleculeACE.models',
