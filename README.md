@@ -16,7 +16,7 @@ QSAR.
 
 <h3> Update: </h3> 
 
-**Upon request, we added an extra column to the datasets containing pEC50 and pKi values calculated from Molar concentrations alongside the original training labels used in the study that used log-transformed nM concentrations.**
+**Upon request, we added an extra column to the datasets containing pEC50 and pKi values calculated from Molar concentrations alongside the original training labels used in the study that used log-transformed nM concentrations. Model errors will be the same when trained with either log transformed nM or log transformed M values (except for random processes), since labels are simple shiften by 9.**
 
 
 <!-- TABLE OF CONTENTS -->
